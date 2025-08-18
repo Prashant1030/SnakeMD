@@ -9,6 +9,8 @@ let highScore = localStorage.getItem("highScore") || 0;
 let food = spawnFood();
 let gameInterval;
 let isPaused = false;
+let gameOver = false;
+let wallCollision = false;
 
 document.getElementById("highScore").textContent = highScore;
 
@@ -68,7 +70,7 @@ function changeDirection(dir) {
 }
 
 function updateGame() {
-  if (isPaused) return;
+  if (isPaused || gameOver) return;
 
   const head = { x: snake[0].x, y: snake[0].y };
   switch (direction) {
@@ -78,13 +80,23 @@ function updateGame() {
     case "right": head.x += box; break;
   }
 
-  if (
-    head.x < 0 || head.x >= canvas.width ||
-    head.y < 0 || head.y >= canvas.height ||
-    snake.some(seg => seg.x === head.x && seg.y === head.y)
-  ) {
-    clearInterval(gameInterval);
-    alert("Game Over!");
+  if (wallCollision) {
+    if (
+      head.x < 0 || head.x >= canvas.width ||
+      head.y < 0 || head.y >= canvas.height
+    ) {
+      endGame();
+      return;
+    }
+  } else {
+    if (head.x < 0) head.x = canvas.width - box;
+    if (head.x >= canvas.width) head.x = 0;
+    if (head.y < 0) head.y = canvas.height - box;
+    if (head.y >= canvas.height) head.y = 0;
+  }
+
+  if (snake.some(seg => seg.x === head.x && seg.y === head.y)) {
+    endGame();
     return;
   }
 
@@ -108,12 +120,19 @@ function updateGame() {
   drawSnake();
 }
 
-function pauseGame() {
-  isPaused = true;
+function endGame() {
+  clearInterval(gameInterval);
+  gameOver = true;
+  document.getElementById("centerBtn").textContent = "🔄";
 }
 
-function resumeGame() {
-  isPaused = false;
+function handleCenterButton() {
+  if (gameOver) {
+    restartGame();
+  } else {
+    isPaused = !isPaused;
+    document.getElementById("centerBtn").textContent = isPaused ? "▶️" : "⏸️";
+  }
 }
 
 function restartGame() {
@@ -121,10 +140,16 @@ function restartGame() {
   snake = [{ x: 9 * box, y: 9 * box }];
   direction = "right";
   score = 0;
-  document.getElementById("score").textContent = score;
-  food = spawnFood();
+  gameOver = false;
   isPaused = false;
+  document.getElementById("score").textContent = score;
+  document.getElementById("centerBtn").textContent = "⏸️";
+  food = spawnFood();
   gameInterval = setInterval(updateGame, 150);
+}
+
+function toggleWall() {
+  wallCollision = document.getElementById("wallToggle").checked;
 }
 
 document.addEventListener("keydown", e => {
@@ -134,7 +159,4 @@ document.addEventListener("keydown", e => {
     ArrowLeft: "left",
     ArrowRight: "right",
   };
-  if (keyMap[e.key]) changeDirection(keyMap[e.key]);
-});
-
-restartGame();
+ 
