@@ -81,38 +81,55 @@ function draw() {
 
 function drawSnake() {
   snake.forEach((seg, i) => {
+    const centerX = seg.x + box / 2;
+    const centerY = seg.y + box / 2;
+
     if (i === 0) {
-      // Head with eyes and fangs
+      // HEAD
+      ctx.save();
+      ctx.translate(centerX, centerY);
+      ctx.rotate(getRotationAngle(direction));
+
+      // Head circle
       ctx.fillStyle = "#00f";
       ctx.beginPath();
-      ctx.arc(seg.x + box / 2, seg.y + box / 2, box / 2, 0, Math.PI * 2);
+      ctx.arc(0, 0, box / 2, 0, Math.PI * 2);
       ctx.fill();
 
       // Eyes
       ctx.fillStyle = "white";
       ctx.beginPath();
-      ctx.arc(seg.x + 6, seg.y + 6, 3, 0, Math.PI * 2);
-      ctx.arc(seg.x + 14, seg.y + 6, 3, 0, Math.PI * 2);
+      ctx.arc(-6, -6, 3, 0, Math.PI * 2);
+      ctx.arc(6, -6, 3, 0, Math.PI * 2);
       ctx.fill();
 
       // Fangs
       ctx.fillStyle = "red";
-      ctx.fillRect(seg.x + 8, seg.y + 14, 4, 6);
-      ctx.fillRect(seg.x + 12, seg.y + 14, 4, 6);
+      ctx.fillRect(-4, 6, 3, 6);
+      ctx.fillRect(1, 6, 3, 6);
+
+      ctx.restore();
     } else if (i === snake.length - 1) {
-      // Cone-shaped tail
+      // TAIL
+      const tailDir = getTailDirection();
+      ctx.save();
+      ctx.translate(centerX, centerY);
+      ctx.rotate(getRotationAngle(oppositeDirection(tailDir)));
+
       ctx.fillStyle = "#0a0";
       ctx.beginPath();
-      ctx.moveTo(seg.x + box / 2, seg.y);
-      ctx.lineTo(seg.x, seg.y + box);
-      ctx.lineTo(seg.x + box, seg.y + box);
+      ctx.moveTo(0, -box / 2);
+      ctx.lineTo(-box / 2, box / 2);
+      ctx.lineTo(box / 2, box / 2);
       ctx.closePath();
       ctx.fill();
+
+      ctx.restore();
     } else {
-      // Cylindrical body
+      // BODY
       ctx.fillStyle = "#0f0";
       ctx.beginPath();
-      ctx.arc(seg.x + box / 2, seg.y + box / 2, box / 2, 0, Math.PI * 2);
+      ctx.arc(centerX, centerY, box / 2, 0, Math.PI * 2);
       ctx.fill();
     }
   });
@@ -177,3 +194,4 @@ document.addEventListener("keydown", e => {
 });
 
 restartGame();
+
