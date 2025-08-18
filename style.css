@@ -13,26 +13,41 @@ canvas {
   margin: 10px auto;
 }
 
+.scoreboard {
+  font-size: 18px;
+  margin-bottom: 10px;
+}
+
 .controls {
-  margin: 20px auto;
-  display: flex;
-  justify-content: center;
-  gap: 10px;
+  position: relative;
+  width: 200px;
+  height: 200px;
+  margin: 30px auto;
 }
 
 button {
   font-size: 24px;
-  padding: 10px;
+  width: 50px;
+  height: 50px;
   border-radius: 50%;
   border: none;
-  background-color: #4caf50;
   color: white;
+  background-color: #4caf50;
   cursor: pointer;
+  position: absolute;
 }
 
 #centerBtn {
   background-color: #2196f3;
+  top: 75px;
+  left: 75px;
 }
+
+.controls button:nth-child(1) { top: 0; left: 75px; }     /* Up */
+.controls button:nth-child(2) { top: 75px; left: 0; }     /* Left */
+.controls button:nth-child(3) { top: 75px; left: 75px; }  /* Center */
+.controls button:nth-child(4) { top: 75px; right: 0; }    /* Right */
+.controls button:nth-child(5) { bottom: 0; left: 75px; }  /* Down */
 
 .options {
   margin-top: 10px;
