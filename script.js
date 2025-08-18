@@ -2,7 +2,7 @@ const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
 
 const box = 20;
-let snake = [{ x: 200, y: 200 }];
+let snake = [];
 let direction = "right";
 let food = spawnFood();
 let score = 0;
@@ -13,6 +13,13 @@ let wallCollision = false;
 let interval;
 
 document.getElementById("highScore").textContent = highScore;
+
+function initSnake() {
+  snake = [];
+  for (let i = 0; i < 5; i++) {
+    snake.push({ x: 200 - i * box, y: 200 });
+  }
+}
 
 function spawnFood() {
   return {
@@ -74,14 +81,48 @@ function draw() {
 
 function drawSnake() {
   snake.forEach((seg, i) => {
-    ctx.fillStyle = i === 0 ? "#00f" : "#0f0";
-    ctx.fillRect(seg.x, seg.y, box, box);
+    if (i === 0) {
+      // Head with eyes and fangs
+      ctx.fillStyle = "#00f";
+      ctx.beginPath();
+      ctx.arc(seg.x + box / 2, seg.y + box / 2, box / 2, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Eyes
+      ctx.fillStyle = "white";
+      ctx.beginPath();
+      ctx.arc(seg.x + 6, seg.y + 6, 3, 0, Math.PI * 2);
+      ctx.arc(seg.x + 14, seg.y + 6, 3, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Fangs
+      ctx.fillStyle = "red";
+      ctx.fillRect(seg.x + 8, seg.y + 14, 4, 6);
+      ctx.fillRect(seg.x + 12, seg.y + 14, 4, 6);
+    } else if (i === snake.length - 1) {
+      // Cone-shaped tail
+      ctx.fillStyle = "#0a0";
+      ctx.beginPath();
+      ctx.moveTo(seg.x + box / 2, seg.y);
+      ctx.lineTo(seg.x, seg.y + box);
+      ctx.lineTo(seg.x + box, seg.y + box);
+      ctx.closePath();
+      ctx.fill();
+    } else {
+      // Cylindrical body
+      ctx.fillStyle = "#0f0";
+      ctx.beginPath();
+      ctx.arc(seg.x + box / 2, seg.y + box / 2, box / 2, 0, Math.PI * 2);
+      ctx.fill();
+    }
   });
 }
 
 function drawFood() {
   ctx.fillStyle = "red";
-  ctx.fillRect(food.x, food.y, box, box);
+  ctx.beginPath();
+  ctx.arc(food.x + box / 2, food.y + box / 2, box / 2, 0, Math.PI * 2);
+  ctx.fill();
 }
 
 function setDirection(dir) {
@@ -114,7 +155,7 @@ function endGame() {
 }
 
 function restartGame() {
-  snake = [{ x: 200, y: 200 }];
+  initSnake();
   direction = "right";
   food = spawnFood();
   score = 0;
