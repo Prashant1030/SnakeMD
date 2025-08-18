@@ -14,19 +14,19 @@
   </div>
   <canvas id="gameCanvas" width="400" height="400"></canvas>
 
-  <div class="controls">
-    <button onclick="changeDirection('up')">⬆️</button>
-    <div>
-      <button onclick="changeDirection('left')">⬅️</button>
-      <button onclick="changeDirection('down')">⬇️</button>
-      <button onclick="changeDirection('right')">➡️</button>
-    </div>
+  <div class="circle-controls">
+    <button class="dir up" onclick="changeDirection('up')">⬆️</button>
+    <button class="dir left" onclick="changeDirection('left')">⬅️</button>
+    <button class="dir right" onclick="changeDirection('right')">➡️</button>
+    <button class="dir down" onclick="changeDirection('down')">⬇️</button>
+    <button class="center" onclick="handleCenterButton()" id="centerBtn">⏸️</button>
   </div>
 
   <div class="actions">
-    <button onclick="pauseGame()">⏸️ Pause</button>
-    <button onclick="resumeGame()">▶️ Play</button>
-    <button onclick="restartGame()">🔄 Restart</button>
+    <label>
+      <input type="checkbox" id="wallToggle" onchange="toggleWall()" />
+      Wall Collision
+    </label>
   </div>
 
   <script src="script.js"></script>
