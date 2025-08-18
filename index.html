@@ -8,6 +8,7 @@
 </head>
 <body>
   <h1>🐍 Snake Game</h1>
+
   <div class="scoreboard">
     <span>Score: <span id="score">0</span></span>
     <span>High Score: <span id="highScore">0</span></span>
@@ -15,15 +16,15 @@
 
   <canvas id="gameCanvas" width="400" height="400"></canvas>
 
-  <div class="circle-controls">
-    <button class="dir up" onclick="changeDirection('up')">⬆️</button>
-    <button class="dir left" onclick="changeDirection('left')">⬅️</button>
-    <button class="dir right" onclick="changeDirection('right')">➡️</button>
-    <button class="dir down" onclick="changeDirection('down')">⬇️</button>
-    <button class="center" onclick="handleCenterButton()" id="centerBtn">⏸️</button>
+  <div class="controls">
+    <button class="btn up" onclick="setDirection('up')">⬆️</button>
+    <button class="btn left" onclick="setDirection('left')">⬅️</button>
+    <button class="btn right" onclick="setDirection('right')">➡️</button>
+    <button class="btn down" onclick="setDirection('down')">⬇️</button>
+    <button class="btn center" onclick="togglePause()" id="centerBtn">⏸️</button>
   </div>
 
-  <div class="actions">
+  <div class="options">
     <label>
       <input type="checkbox" id="wallToggle" onchange="toggleWall()" />
       Wall Collision
