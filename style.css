@@ -24,25 +24,6 @@ canvas {
   position: relative;
   width: 200px;
   height: 200px;
-  margin: 20px auto;
-}
-
-.circle-controls .dir {
-  position: absolute;
-  width: 50px;
-  height: 50px;
-  font-size: 24px;
-  border-radius: 50%;
-  background-color: #4caf50;
-  color: white;
-  border: none;
-  cursor: pointer;
-}
-
-.circle-controls {
-  position: relative;
-  width: 200px;
-  height: 200px;
   margin: 30px auto;
 }
 
@@ -77,4 +58,3 @@ canvas {
   margin-top: 10px;
   font-size: 18px;
 }
-
