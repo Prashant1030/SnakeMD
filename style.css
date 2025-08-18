@@ -20,24 +20,45 @@ canvas {
   display: block;
 }
 
-.controls button,
-.actions button {
+.circle-controls {
+  position: relative;
+  width: 200px;
+  height: 200px;
+  margin: 20px auto;
+}
+
+.circle-controls .dir {
+  position: absolute;
+  width: 50px;
+  height: 50px;
   font-size: 24px;
-  margin: 5px;
-  padding: 10px 20px;
-  border: none;
-  border-radius: 8px;
+  border-radius: 50%;
   background-color: #4caf50;
   color: white;
+  border: none;
   cursor: pointer;
 }
 
-.controls {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+.circle-controls .up    { top: 0; left: 75px; }
+.circle-controls .down  { bottom: 0; left: 75px; }
+.circle-controls .left  { top: 75px; left: 0; }
+.circle-controls .right { top: 75px; right: 0; }
+
+.circle-controls .center {
+  position: absolute;
+  top: 75px;
+  left: 75px;
+  width: 50px;
+  height: 50px;
+  font-size: 24px;
+  border-radius: 50%;
+  background-color: #2196f3;
+  color: white;
+  border: none;
+  cursor: pointer;
 }
 
 .actions {
   margin-top: 10px;
+  font-size: 18px;
 }
