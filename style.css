@@ -1,34 +1,35 @@
 body {
-  font-family: Arial, sans-serif;
+  font-family: sans-serif;
   text-align: center;
-  background: #f0f0f0;
+  background-color: #f5f5f5;
+  margin: 0;
+  padding: 20px;
 }
 
 h1 {
-  margin-top: 20px;
+  margin-bottom: 10px;
 }
 
 .scoreboard {
-  margin: 10px;
   font-size: 18px;
+  margin-bottom: 10px;
 }
 
 canvas {
-  background: #222;
-  border: 2px solid #555;
-  margin: 10px auto;
+  background-color: #222;
+  border: 2px solid #444;
   display: block;
+  margin: 0 auto;
 }
 
-.circle-controls {
+.controls {
   position: relative;
   width: 200px;
   height: 200px;
-  margin: 30px auto;
+  margin: 20px auto;
 }
 
-.circle-controls .dir,
-.circle-controls .center {
+.btn {
   position: absolute;
   width: 50px;
   height: 50px;
@@ -36,11 +37,8 @@ canvas {
   border-radius: 50%;
   border: none;
   color: white;
-  cursor: pointer;
-}
-
-.dir {
   background-color: #4caf50;
+  cursor: pointer;
 }
 
 .center {
@@ -49,12 +47,12 @@ canvas {
   left: 75px;
 }
 
-.up    { top: 0; left: 75px; }
-.down  { bottom: 0; left: 75px; }
-.left  { top: 75px; left: 0; }
+.up { top: 0; left: 75px; }
+.down { bottom: 0; left: 75px; }
+.left { top: 75px; left: 0; }
 .right { top: 75px; right: 0; }
 
-.actions {
+.options {
   margin-top: 10px;
-  font-size: 18px;
+  font-size: 16px;
 }
