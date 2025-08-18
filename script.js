@@ -78,6 +78,36 @@ function draw() {
   drawFood();
   drawSnake();
 }
+function getRotationAngle(dir) {
+  switch (dir) {
+    case "up": return 0;
+    case "right": return Math.PI / 2;
+    case "down": return Math.PI;
+    case "left": return -Math.PI / 2;
+    default: return 0;
+  }
+}
+
+function getTailDirection() {
+  if (snake.length < 2) return direction;
+  const tail = snake[snake.length - 1];
+  const beforeTail = snake[snake.length - 2];
+
+  if (tail.x < beforeTail.x) return "left";
+  if (tail.x > beforeTail.x) return "right";
+  if (tail.y < beforeTail.y) return "up";
+  return "down";
+}
+
+function oppositeDirection(dir) {
+  const map = {
+    up: "down",
+    down: "up",
+    left: "right",
+    right: "left"
+  };
+  return map[dir];
+}
 
 function drawSnake() {
   snake.forEach((seg, i) => {
@@ -194,4 +224,5 @@ document.addEventListener("keydown", e => {
 });
 
 restartGame();
+
 
