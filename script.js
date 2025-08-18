@@ -159,4 +159,7 @@ document.addEventListener("keydown", e => {
     ArrowLeft: "left",
     ArrowRight: "right",
   };
- 
+  if (keyMap[e.key]) changeDirection(keyMap[e.key]);
+});
+
+restartGame();
