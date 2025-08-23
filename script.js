@@ -1,174 +1,123 @@
-// ----- DOM -----
-const canvas = document.getElementById("game");
+// SnakeMD - Fixed & Enhanced Version
+const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
-const scoreEl = document.getElementById("score");
-const highScoreEl = document.getElementById("highScore");
-const wallToggleEl = document.getElementById("wallToggle");
-const wallStateEl = document.getElementById("wallState");
-const btnUp = document.getElementById("btnUp");
-const btnLeft = document.getElementById("btnLeft");
-const btnPause = document.getElementById("btnPause");
-const btnRight = document.getElementById("btnRight");
-const btnDown = document.getElementById("btnDown");
+const box = 20;
+const canvasSize = 400;
+canvas.width = canvasSize;
+canvas.height = canvasSize;
 
-// ----- Audio -----
-const eatSound = new Audio("eat.mp3");
-const hitSound = new Audio("hit.mp3");
-[eatSound, hitSound].forEach(a => a.preload = "auto");
+let snake = [{ x: 9 * box, y: 10 * box }];
+let direction = "RIGHT";
+let food = spawnFood();
+let score = 0;
+let highScore = localStorage.getItem("highScore") || 0;
+let wallCollision = true;
 
-// ----- Config -----
-const GRID_SIZE = 24;
-const CELL_PX = Math.floor(canvas.width / GRID_SIZE);
-const TICK_RATE = 8;
-const STEP_MS = 1000 / TICK_RATE;
-const COLORS = {
-  gridLine: "#161a20",
-  food: "#ffb34d",
-  body: "#7bda5a",
-  head: "#c8ff9f",
-  mouthCut: "#0f1318",
-  eye: "#0b0f14"
-};
+const eatSound = new Audio("sounds/eat.mp3");
+const dieSound = new Audio("sounds/die.mp3");
 
-// ----- State -----
-let snake, dir, nextDir, food, score;
-let highScore = readHighScore();
-let wallOn = true;
-let lastTime = 0, acc = 0;
-let running = true, justTurnedThisTick = false;
-
-// ----- Init -----
-function readHighScore() {
-  const v = localStorage.getItem("snakeHighScore");
-  const n = v == null ? 0 : Number(v);
-  return Number.isFinite(n) && n >= 0 ? n : 0;
-}
-
-function writeHighScore(n) {
-  localStorage.setItem("snakeHighScore", String(n));
-}
-
-function resetGame() {
-  const cx = Math.floor(GRID_SIZE / 2);
-  const cy = Math.floor(GRID_SIZE / 2);
-  snake = Array.from({ length: 5 }, (_, i) => ({ x: cx - i, y: cy }));
-  dir = { x: 1, y: 0 };
-  nextDir = { ...dir };
-  score = 0;
-  updateScoreUI();
-  placeFood();
-  justTurnedThisTick = false;
-}
-
-function placeFood() {
-  do {
-    food = {
-      x: Math.floor(Math.random() * GRID_SIZE),
-      y: Math.floor(Math.random() * GRID_SIZE)
-    };
-  } while (snake.some(s => s.x === food.x && s.y === food.y));
-}
-
-function updateScoreUI() {
-  scoreEl.textContent = score;
-  highScoreEl.textContent = highScore;
-}
-
-function updateWallUI() {
-  wallStateEl.textContent = wallOn ? "ON" : "OFF";
-  wallToggleEl.checked = wallOn;
-}
-
-// ----- Input -----
-function setNextDir(nx, ny) {
-  if (nx === -dir.x && ny === -dir.y) return;
-  if (justTurnedThisTick) return;
-  nextDir = { x: nx, y: ny };
-  justTurnedThisTick = true;
-}
-
-window.addEventListener("keydown", e => {
-  switch (e.key) {
-    case "ArrowUp": setNextDir(0, -1); break;
-    case "ArrowDown": setNextDir(0, 1); break;
-    case "ArrowLeft": setNextDir(-1, 0); break;
-    case "ArrowRight": setNextDir(1, 0); break;
-    case " ": togglePause(); break;
-  }
+document.addEventListener("keydown", changeDirection);
+document.getElementById("wallToggle").addEventListener("click", () => {
+  wallCollision = !wallCollision;
+  document.getElementById("wallToggle").textContent = wallCollision ? "Wall: ON" : "Wall: OFF";
 });
 
-[btnUp, btnDown, btnLeft, btnRight].forEach((btn, i) => {
-  const dirs = [[0, -1], [0, 1], [-1, 0], [1, 0]];
-  btn.addEventListener("click", () => setNextDir(...dirs[i]));
+["up", "down", "left", "right"].forEach(dir => {
+  document.getElementById(dir).addEventListener("click", () => changeDirection({ key: dir.toUpperCase() }));
 });
 
-btnPause.addEventListener("click", togglePause);
-wallToggleEl.addEventListener("change", () => {
-  wallOn = wallToggleEl.checked;
-  updateWallUI();
-});
-
-// ----- Loop -----
-function togglePause() {
-  running = !running;
-  if (running) {
-    lastTime = performance.now();
-    acc = 0;
-    requestAnimationFrame(loop);
-  }
+function changeDirection(e) {
+  const key = e.key || e;
+  if (key === "ArrowLeft" || key === "LEFT" && direction !== "RIGHT") direction = "LEFT";
+  else if (key === "ArrowUp" || key === "UP" && direction !== "DOWN") direction = "UP";
+  else if (key === "ArrowRight" || key === "RIGHT" && direction !== "LEFT") direction = "RIGHT";
+  else if (key === "ArrowDown" || key === "DOWN" && direction !== "UP") direction = "DOWN";
 }
 
-function loop(ts) {
-  if (!running) return;
-  const dt = ts - lastTime;
-  lastTime = ts;
-  acc += dt;
-  while (acc >= STEP_MS) {
-    tick();
-    acc -= STEP_MS;
-  }
-  draw();
-  requestAnimationFrame(loop);
+function spawnFood() {
+  return {
+    x: Math.floor(Math.random() * canvas.width / box) * box,
+    y: Math.floor(Math.random() * canvas.height / box) * box
+  };
 }
 
-function tick() {
-  dir = { ...nextDir };
-  justTurnedThisTick = false;
-  const head = snake[0];
-  let nx = head.x + dir.x;
-  let ny = head.y + dir.y;
+function draw() {
+  ctx.fillStyle = "#f0f0f0";
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-  if (wallOn) {
-    if (nx < 0 || nx >= GRID_SIZE || ny < 0 || ny >= GRID_SIZE) return gameOver();
-  } else {
-    nx = (nx + GRID_SIZE) % GRID_SIZE;
-    ny = (ny + GRID_SIZE) % GRID_SIZE;
+  // Draw food
+  ctx.fillStyle = "red";
+  ctx.fillRect(food.x, food.y, box, box);
+
+  // Draw snake
+  snake.forEach((segment, i) => {
+    ctx.fillStyle = i === 0 ? "green" : "lime";
+    ctx.fillRect(segment.x, segment.y, box, box);
+    if (i === 0) drawMouth(segment); // Head animation
+  });
+
+  // Move snake
+  let head = { ...snake[0] };
+  if (direction === "LEFT") head.x -= box;
+  if (direction === "UP") head.y -= box;
+  if (direction === "RIGHT") head.x += box;
+  if (direction === "DOWN") head.y += box;
+
+  // Wall collision
+  if (wallCollision && (head.x < 0 || head.x >= canvas.width || head.y < 0 || head.y >= canvas.height)) {
+    dieSound.play();
+    resetGame();
+    return;
   }
 
-  const newHead = { x: nx, y: ny };
-  if (snake.some((s, i) => i !== 0 && s.x === newHead.x && s.y === newHead.y)) return gameOver();
+  // Wrap around
+  if (!wallCollision) {
+    head.x = (head.x + canvas.width) % canvas.width;
+    head.y = (head.y + canvas.height) % canvas.height;
+  }
 
-  snake.unshift(newHead);
+  // Self collision
+  if (snake.some(seg => seg.x === head.x && seg.y === head.y)) {
+    dieSound.play();
+    resetGame();
+    return;
+  }
 
-  if (newHead.x === food.x && newHead.y === food.y) {
-    eatSound.currentTime = 0;
-    eatSound.play().catch(() => {});
+  snake.unshift(head);
+
+  // Eat food
+  if (head.x === food.x && head.y === food.y) {
     score++;
+    eatSound.play();
+    food = spawnFood();
     if (score > highScore) {
       highScore = score;
-      writeHighScore(highScore);
+      localStorage.setItem("highScore", highScore);
     }
-    updateScoreUI();
-    placeFood();
   } else {
     snake.pop();
   }
+
+  updateScore();
 }
 
-function gameOver() {
-  hitSound.currentTime = 0;
-  hitSound.play().catch(() => {});
-  resetGame();
+function drawMouth(head) {
+  ctx.fillStyle = "black";
+  ctx.beginPath();
+  ctx.arc(head.x + box / 2, head.y + box / 2, box / 4, 0, Math.PI * 2);
+  ctx.fill();
 }
 
-// ----- Render ----
+function updateScore() {
+  document.getElementById("score").textContent = `Score: ${score}`;
+  document.getElementById("highScore").textContent = `High Score: ${highScore}`;
+}
+
+function resetGame() {
+  snake = [{ x: 9 * box, y: 10 * box }];
+  direction = "RIGHT";
+  score = 0;
+  food = spawnFood();
+}
+
+setInterval(draw, 100);
