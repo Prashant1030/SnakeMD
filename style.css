@@ -4,7 +4,7 @@ body {
   font-family: 'Segoe UI', sans-serif;
   text-align: center;
   margin: 0;
-  padding: 18px;
+  padding: 20px;
 }
 
 h1 {
@@ -55,6 +55,8 @@ canvas {
   margin-top: 10px;
   font-size: 1em;
   align: center;
+  gap: 10px;
 }
+
 
 
