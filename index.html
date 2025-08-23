@@ -1,33 +1,95 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>SnakeMD</title>
-  <link rel="stylesheet" href="style.css" />
-</head>
-<body>
-  <h1> SnakeMD</h1>
+<!doctype html>
+<html lang="en" data-theme="dark">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Snake — Levels, Bonus, Circular Controls</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <!-- HUD -->
+    <header class="hud">
+      <div class="hud-left">
+        <div class="stat"><span class="label">Score</span><span id="score">0</span></div>
+        <div class="stat"><span class="label">High</span><span id="highScore">0</span></div>
+        <div class="stat"><span class="label">Level</span><span id="level">1</span></div>
+        <div class="stat"><span class="label">Walls</span><span id="wallsState">On</span></div>
+      </div>
+      <div class="hud-right">
+        <button id="settingsBtn" class="icon-btn" aria-label="Settings" title="Settings">⚙️</button>
+      </div>
+    </header>
 
-  <div class="scoreboard">
-    <div>Score: <span id="score">0</span></div>
-    <div>High Score: <span id="highScore">0</span></div>
-    <div>Wall: <span id="wallStatus">ON</span></div>
-  </div>
+    <!-- Playzone -->
+    <main class="game-area">
+      <canvas id="game" width="720" height="480" aria-label="Snake Playzone"></canvas>
+      <div id="bonusTimer" class="bonus-timer hidden" aria-hidden="true"></div>
+      <div id="overlay" class="overlay">
+        <div class="dialog">
+          <h2>How to Play</h2>
+          <ul>
+            <li><b>Goal:</b> Eat red food to score +1. Every 5 foods spawns a green bonus worth +5 for 4 seconds.</li>
+            <li><b>Move:</b> Arrow keys or on-screen controls. Avoid hitting yourself (or walls if enabled).</li>
+            <li><b>Levels:</b> Speed increases every 100 points. Settings let you tweak theme, walls, and level.</li>
+            <li><b>Pause:</b> Center button or Space key. After game over, center button restarts.</li>
+          </ul>
+          <div class="dialog-actions">
+            <button id="startBtn" class="primary">Start Game</button>
+          </div>
+        </div>
+      </div>
+    </main>
 
-  <canvas id="gameCanvas" width="400" height="400"></canvas>
+    <!-- Circular Controls -->
+    <section class="controls">
+      <div class="control-ring" role="group" aria-label="Directional Controls">
+        <button id="btnUp" class="control-btn up" aria-label="Up">▲</button>
+        <button id="btnLeft" class="control-btn left" aria-label="Left">◀</button>
+        <button id="btnRight" class="control-btn right" aria-label="Right">▶</button>
+        <button id="btnDown" class="control-btn down" aria-label="Down">▼</button>
 
-  <div id="controls">
-    <button id="up">↑</button>
-    <button id="left">←</button>
-    <button id="pausePlay">⏸</button>
-    <button id="right">→</button>
-    <button id="down">↓</button>
-    <button id="wallToggle">Wall: ON</button>
-  </div>
+        <button id="btnCenter" class="center-btn" aria-label="Play/Pause">
+          <span id="centerIcon">⏸️</span>
+        </button>
+      </div>
+    </section>
 
-  <audio id="hitSound" src="hit.mp3" preload="auto"></audio>
+    <!-- Settings Panel -->
+    <aside id="settingsPanel" class="settings hidden" aria-hidden="true">
+      <div class="settings-header">
+        <h3>Settings</h3>
+        <button id="closeSettings" class="icon-btn" aria-label="Close">✖️</button>
+      </div>
 
-  <script src="script.js"></script>
-</body>
+      <div class="settings-body">
+        <div class="setting-row">
+          <label for="themeSelect"><b>Theme</b></label>
+          <select id="themeSelect">
+            <option value="dark">Dark</option>
+            <option value="light">Light</option>
+          </select>
+        </div>
+
+        <div class="setting-row">
+          <label for="wallsToggle"><b>Walls</b></label>
+          <select id="wallsToggle">
+            <option value="on">On (collide)</option>
+            <option value="off">Off (wrap)</option>
+          </select>
+        </div>
+
+        <div class="setting-row">
+          <label for="levelSelect"><b>Level</b></label>
+          <select id="levelSelect"></select>
+          <small>Reach 100 points to unlock the next level.</small>
+        </div>
+
+        <div class="setting-row">
+          <button id="resetProgress" class="danger">Reset High Score & Levels</button>
+        </div>
+      </div>
+    </aside>
+
+    <script src="script.js"></script>
+  </body>
 </html>
