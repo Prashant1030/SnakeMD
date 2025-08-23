@@ -25,6 +25,8 @@
   const levelSelect = document.getElementById('levelSelect');
   const resetProgress = document.getElementById('resetProgress');
   const bonusTimerEl = document.getElementById('bonusTimer');
+const eatSound = new Audio("sounds/eat.mp3");
+const hitSound = new Audio("sounds/hit.mp3");
 
   // Responsive sizing
   function fitCanvas() {
@@ -154,16 +156,18 @@
   function consumeFoodIfAny(nextHead) {
     let grew = false;
     if (food && nextHead.x === food.x && nextHead.y === food.y) {
-      score += 1;
-      foodsEaten += 1;
-      mouthOpenTimer = MOUTH_OPEN_DURATION;
-      // grow by not removing tail this tick
-      grew = true;
-      food = placeFood(bonus);
-      if (foodsEaten > 0 && foodsEaten % 5 === 0 && !bonus) {
-        spawnBonus();
-      }
-    } else if (bonus && nextHead.x === bonus.x && nextHead.y === bonus.y) {
+  eatSound.play(); // 👈 play eat sound
+  score += 1;
+  foodsEaten += 1;
+  mouthOpenTimer = MOUTH_OPEN_DURATION;
+  grew = true;
+  food = placeFood(bonus);
+  if (foodsEaten > 0 && foodsEaten % 5 === 0 && !bonus) {
+    spawnBonus();
+  }
+} 
+    
+    else if (bonus && nextHead.x === bonus.x && nextHead.y === bonus.y) {
       score += 5;
       mouthOpenTimer = MOUTH_OPEN_DURATION;
       grew = true;
@@ -247,6 +251,7 @@
   }
 
   function endGame() {
+      hitSound.play();
     running = false;
     gameOver = true;
     centerIcon.textContent = '🔁';
@@ -574,4 +579,5 @@
   drawFrame(false);
   startBtn.click();
 })();
+
 
