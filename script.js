@@ -1,381 +1,528 @@
 (() => {
-  'use strict';
-
-  // ----- DOM -----
-  const canvas = document.getElementById('game');
-  const ctx = canvas.getContext('2d');
-
-  const scoreEl = document.getElementById('score');
-  const highScoreEl = document.getElementById('highScore');
-  const levelEl = document.getElementById('level');
-
-  const intro = document.getElementById('intro');
-  const btnStart = document.getElementById('btnStart');
-
-  const btnSettings = document.getElementById('btnSettings');
-  const settingsModal = document.getElementById('settingsModal');
-  const btnCloseSettings = document.getElementById('btnCloseSettings');
-  const toggleWalls = document.getElementById('toggleWalls');
-  const selectTheme = document.getElementById('selectTheme');
-  const btnResetHigh = document.getElementById('btnResetHigh');
-  const btnTheme = document.getElementById('btnTheme');
-
-  const btnUp = document.getElementById('dirUp');
-  const btnDown = document.getElementById('dirDown');
-  const btnLeft = document.getElementById('dirLeft');
-  const btnRight = document.getElementById('dirRight');
-  const btnCenter = document.getElementById('btnCenter');
-
-  const toast = document.getElementById('toast');
-
   // ----- Config -----
-  const GRID = 28;                  // GRID x GRID cells
-  const MAX_BOARD_PX = 560;
-  const MIN_BOARD_PX = 360;
+  const COLS = 30;
+  const ROWS = 30;
 
-  const BASE_SPEED = 7;             // moves/sec at Level 1
-  const SPEED_PER_LEVEL = 2;        // +2 moves/sec per level
-  const POINTS_PER_LEVEL = 100;     // new level each 100 points
+  // Levels: lower ms = faster
+  const LEVEL_SPEEDS_MS = [150, 125, 105, 90, 78, 68, 60]; // Level 1..n
+  const POINTS_PER_LEVEL = 50;
 
-  const BONUS_INTERVAL = 5;         // every 5 red foods
-  const BONUS_POINTS = 5;
+  // Drawing
+  const GRID_COLOR_ALPHA = 0.08;
+  const BODY_ROUND = 6;
+
+  // Bonus food
+  const FOODS_PER_BONUS = 5;
   const BONUS_LIFETIME_MS = 4000;
+  const BONUS_VALUE = 5;
+
+  // Mouth animation
+  const MOUTH_OPEN_MS = 250;
 
   // ----- State -----
-  let tile = 16;
-  let running = false;
-  let over = false;
+  const canvas = document.getElementById('board');
+  const ctx = canvas.getContext('2d');
+  const scoreEl = document.getElementById('score');
+  const highEl = document.getElementById('high');
+  const levelEl = document.getElementById('level');
 
-  let snake = [];                   // array of {x,y}
-  let dir = { x: 1, y: 0 };
+  const settingsBtn = document.getElementById('btn-settings');
+  const settingsPanel = document.getElementById('settings-panel');
+  const settingsClose = document.getElementById('btn-close-settings');
+  const selWalls = document.getElementById('toggle-walls');
+  const selTheme = document.getElementById('toggle-theme');
+
+  const btnUp = document.getElementById('btn-up');
+  const btnDown = document.getElementById('btn-down');
+  const btnLeft = document.getElementById('btn-left');
+  const btnRight = document.getElementById('btn-right');
+  const btnCenter = document.getElementById('btn-center');
+
+  const intro = document.getElementById('intro');
+
+  let cellSize = Math.floor(canvas.width / COLS);
+  // ensure pixel-perfect grid
+  canvas.width = cellSize * COLS;
+  canvas.height = cellSize * ROWS;
+
+  // Game variables
+  let snake = []; // array of {x,y}
+  let dir = { x: 1, y: 0 }; // start moving right
   let nextDir = { x: 1, y: 0 };
-  let changedThisTick = false;
+  let tickTimer = null;
+  let running = true;
+  let gameOver = false;
 
   let score = 0;
-  let highScore = 0;
+  let high = Number(localStorage.getItem('snake_highscore_v1') || 0);
   let level = 1;
-  let redsEaten = 0;
 
   let wallsOn = true;
-  let theme = 'dark';
+  let theme = (document.documentElement.getAttribute('data-theme') || 'dark');
 
-  let food = null;                  // {x,y}
-  let bonus = null;                 // {x,y, expiresAt}
-  let mouthOpenUntil = 0;           // timestamp
+  let food = null; // {x,y, color: 'red' }
+  let bonusFood = null; // {x,y,expires}
+  let foodsEaten = 0; // counts normal foods eaten (for bonus spawn)
+  let lastEatTime = 0; // for mouth open animation
 
-  let lastTs = 0;
-  let acc = 0;
+  // Sounds
+  const sEat = new Audio('sounds/eat.mp3');
+  const sSpawn = new Audio('sounds/spawn.mp3');
+  const sHit = new Audio('sounds/hit.mp3');
+  [sEat, sSpawn, sHit].forEach(a => { a.preload = 'auto'; a.volume = 0.8; });
 
-  // ----- Persistence / Setup -----
-  function loadPrefs() {
-    highScore = parseInt(localStorage.getItem('snakemd:high') || '0', 10);
-    wallsOn = (localStorage.getItem('snakemd:walls') || 'on') === 'on';
-    theme = localStorage.getItem('snakemd:theme') || 'dark';
-    applyTheme(theme);
+  // ----- Utilities -----
+  function randInt(n) { return Math.floor(Math.random() * n); }
+  function posEq(a,b){ return a && b && a.x === b.x && a.y === b.y; }
+  function inSnake(p) { return snake.some(s => s.x === p.x && s.y === p.y); }
+  function inSnakeExceptTail(p) {
+    // When moving, last tail cell will vacate; to avoid "spawn inside moving body",
+    // still exclude the current tail to be safe.
+    return snake.slice(0, -1).some(s => s.x === p.x && s.y === p.y);
   }
-  function saveHigh() { localStorage.setItem('snakemd:high', String(highScore)); }
-  function saveWalls() { localStorage.setItem('snakemd:walls', wallsOn ? 'on' : 'off'); }
-  function saveTheme() { localStorage.setItem('snakemd:theme', theme); }
+  function wrap(x, max) { return (x + max) % max; }
 
-  function fitCanvas() {
-    const size = Math.min(MAX_BOARD_PX, Math.max(MIN_BOARD_PX, Math.floor(window.innerWidth - 32)));
-    tile = Math.max(8, Math.floor(size / GRID));
-    const snap = tile * GRID;
-    canvas.width = snap;
-    canvas.height = snap;
-  }
-
-  function levelSpeed(lvl) {
-    return BASE_SPEED + SPEED_PER_LEVEL * (lvl - 1);
+  function setTheme(val) {
+    document.documentElement.setAttribute('data-theme', val);
+    theme = val;
   }
 
-  function stepMs() {
-    return 1000 / levelSpeed(level);
-  }
-
-  function showIntro() { intro.classList.remove('hidden'); }
-  function hideIntro() { intro.classList.add('hidden'); }
-
-  function showToast(msg, ms = 1400) {
-    toast.textContent = msg;
-    toast.classList.remove('hidden');
-    window.clearTimeout(showToast._t);
-    showToast._t = setTimeout(() => toast.classList.add('hidden'), ms);
-  }
-
-  // ----- Init / Reset -----
-  function startingSnake() {
-    // Start length = half of playzone width
-    const len = Math.floor(GRID / 2);
-    const cy = Math.floor(GRID / 2);
-    const startX = Math.floor(GRID / 2 - len / 2);
-    const arr = [];
-    for (let i = 0; i < len; i++) arr.push({ x: startX + i, y: cy });
-    return arr;
-  }
-
-  function resetGame(hard = false) {
-    snake = startingSnake();
-    dir = { x: 1, y: 0 };
-    nextDir = { x: 1, y: 0 };
-    changedThisTick = false;
-
-    food = spawnFood();
-    bonus = null;
-    mouthOpenUntil = 0;
-    redsEaten = 0;
-
-    if (hard) {
-      score = 0;
-      level = 1;
-    }
-    over = false;
-    updateHUD();
+  function setWalls(val) {
+    wallsOn = (val === 'on');
   }
 
   function updateHUD() {
     scoreEl.textContent = String(score);
-    highScoreEl.textContent = String(highScore);
+    highEl.textContent = String(high);
     levelEl.textContent = String(level);
-    toggleWalls.checked = wallsOn;
-    selectTheme.value = theme;
-    btnCenter.textContent = running && !over ? '⏸' : (over ? '↻' : '▶');
+    btnCenter.textContent = gameOver ? '⟳' : (running ? '⏸' : '▶');
   }
 
-  // ----- Utilities -----
-  function randInt(min, max) {
-    return Math.floor(Math.random() * (max - min + 1)) + min;
+  function speedForLevel(lv) {
+    return LEVEL_SPEEDS_MS[Math.min(lv-1, LEVEL_SPEEDS_MS.length-1)];
   }
-  function cellEq(a, b) { return a.x === b.x && a.y === b.y; }
-  function occupiedBySnake(p) { return snake.some(s => s.x === p.x && s.y === p.y); }
-  function spawnFood() {
-    while (true) {
-      const p = { x: randInt(0, GRID - 1), y: randInt(0, GRID - 1) };
-      if (!occupiedBySnake(p) && (!bonus || !cellEq(p, bonus))) return p;
-    }
+
+  function resizeForDPR() {
+    // Keep the board crisp on high-DPI screens without changing logical grid
+    const dpr = window.devicePixelRatio || 1;
+    const logicalW = cellSize * COLS;
+    const logicalH = cellSize * ROWS;
+    canvas.style.width = logicalW + 'px';
+    canvas.style.height = logicalH + 'px';
+    canvas.width = Math.floor(logicalW * dpr);
+    canvas.height = Math.floor(logicalH * dpr);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    draw();
   }
-  function spawnBonus() {
-    if (bonus) return;
+
+  // ----- Food placement -----
+  function spawnFood(avoidBonus = false) {
     let p;
     do {
-      p = { x: randInt(0, GRID - 1), y: randInt(0, GRID - 1) };
-    } while (occupiedBySnake(p) || cellEq(p, food));
-    bonus = { x: p.x, y: p.y, expiresAt: performance.now() + BONUS_LIFETIME_MS };
+      p = { x: randInt(COLS), y: randInt(ROWS) };
+    } while (inSnake(p) || (avoidBonus && bonusFood && posEq(p, bonusFood)));
+    food = { x: p.x, y: p.y, color: 'red' };
   }
-  function clampWrap(n, min, max) {
-    const span = max - min + 1;
-    let r = (n - min) % span;
-    if (r < 0) r += span;
-    return min + r;
+
+  function spawnBonus() {
+    let p;
+    let tries = 0;
+    do {
+      p = { x: randInt(COLS), y: randInt(ROWS) };
+      tries++;
+      if (tries > 500) break; // fail-safe
+    } while (inSnake(p) || (food && posEq(p, food)));
+    bonusFood = { x: p.x, y: p.y, expires: performance.now() + BONUS_LIFETIME_MS };
+    // play spawn sound (may be blocked before user interaction)
+    sSpawn.currentTime = 0; sSpawn.play().catch(()=>{});
   }
-  function isOpposite(a, b) { return a.x === -b.x && a.y === -b.y; }
-  function setDirection(x, y) {
-    if (!running || over) return;
-    if (changedThisTick) return;
-    const proposal = { x, y };
-    if (isOpposite(proposal, dir)) return;
-    nextDir = proposal;
-    changedThisTick = true;
+
+  // ----- Snake init -----
+  function resetSnake() {
+    snake = [];
+    const startLen = Math.floor(COLS / 4); // quarter of play zone length
+    // Start centered vertically, head on the right
+    const y = Math.floor(ROWS / 2);
+    const headX = Math.floor(COLS / 2);
+    for (let i = 0; i < startLen; i++) {
+      snake.unshift({ x: headX - i, y }); // head at index 0
+    }
+    dir = { x: 1, y: 0 };
+    nextDir = { x: 1, y: 0 };
   }
-  function applyTheme(next) {
-    theme = next === 'light' ? 'light' : 'dark';
-    const root = document.documentElement;
-    if (theme === 'light') root.setAttribute('data-theme', 'light');
-    else root.removeAttribute('data-theme');
-  }
-  function getCss(name, fallback) {
-    const v = getComputedStyle(document.documentElement).getPropertyValue(name);
-    return (v && v.trim()) || fallback;
-  }
-  function lighten(hex, amt) {
-    try {
-      const c = hex.replace('#',''); const n = parseInt(c, 16);
-      let r = Math.min(255, ((n >> 16) & 255) + Math.floor(255 * amt));
-      let g = Math.min(255, ((n >> 8) & 255) + Math.floor(255 * amt));
-      let b = Math.min(255, (n & 255) + Math.floor(255 * amt));
-      return '#' + [r,g,b].map(x => x.toString(16).padStart(2,'0')).join('');
-    } catch { return hex; }
+
+  function resetGame(preserveHigh = true) {
+    running = true;
+    gameOver = false;
+    score = 0;
+    foodsEaten = 0;
+    bonusFood = null;
+    lastEatTime = 0;
+    if (!preserveHigh) high = 0;
+    level = 1;
+    resetSnake();
+    spawnFood(true);
+    updateHUD();
+    setTick();
+    draw();
   }
 
   // ----- Input -----
+  function setDirection(dx, dy) {
+    // prevent reversing into ourselves
+    if (snake.length > 1 && dx === -dir.x && dy === -dir.y) return;
+    nextDir = { x: dx, y: dy };
+  }
+
   window.addEventListener('keydown', (e) => {
-    const k = e.key;
-    if (['ArrowUp','ArrowDown','ArrowLeft','ArrowRight',' ','Enter','w','a','s','d','W','A','S','D','p','P','r','R'].includes(k)) e.preventDefault();
-    switch (k) {
-      case 'ArrowUp': case 'w': case 'W': setDirection(0,-1); break;
-      case 'ArrowDown': case 's': case 'S': setDirection(0, 1); break;
-      case 'ArrowLeft': case 'a': case 'A': setDirection(-1,0); break;
-      case 'ArrowRight': case 'd': case 'D': setDirection(1, 0); break;
-      case ' ': case 'Enter': toggleRunPause(); break;
-      case 'p': case 'P': toggleRunPause(); break;
-      case 'r': case 'R': if (over) restart(); break;
+    const k = e.key.toLowerCase();
+    if (k === 'arrowup' || k === 'w') setDirection(0, -1);
+    else if (k === 'arrowdown' || k === 's') setDirection(0, 1);
+    else if (k === 'arrowleft' || k === 'a') setDirection(-1, 0);
+    else if (k === 'arrowright' || k === 'd') setDirection(1, 0);
+    else if (k === ' ' || k === 'enter') togglePauseOrRestart();
+  });
+
+  btnUp.addEventListener('click', () => setDirection(0, -1));
+  btnDown.addEventListener('click', () => setDirection(0, 1));
+  btnLeft.addEventListener('click', () => setDirection(-1, 0));
+  btnRight.addEventListener('click', () => setDirection(1, 0));
+  btnCenter.addEventListener('click', togglePauseOrRestart);
+
+  function togglePauseOrRestart() {
+    if (gameOver) {
+      resetGame(true);
+      return;
     }
-  }, { passive: false });
-
-  function bindPointer(el, fn) {
-    el.addEventListener('pointerdown', (ev) => { ev.preventDefault(); fn(); }, { passive: false });
+    running = !running;
+    updateHUD();
+    if (running) setTick();
   }
-  bindPointer(btnUp, () => setDirection(0,-1));
-  bindPointer(btnDown, () => setDirection(0, 1));
-  bindPointer(btnLeft, () => setDirection(-1,0));
-  bindPointer(btnRight, () => setDirection(1, 0));
-  bindPointer(btnCenter, () => { if (over) restart(); else toggleRunPause(); });
 
-  btnStart.addEventListener('click', () => { hideIntro(); restart(true); });
-
-  btnSettings.addEventListener('click', () => settingsModal.classList.remove('hidden'));
-  btnCloseSettings.addEventListener('click', () => settingsModal.classList.add('hidden'));
-  settingsModal.addEventListener('click', (e) => { if (e.target === settingsModal) settingsModal.classList.add('hidden'); });
-
-  btnResetHigh.addEventListener('click', () => {
-    highScore = 0; saveHigh(); updateHUD(); showToast('High score reset');
+  // Settings UI
+  settingsBtn.addEventListener('click', () => {
+    settingsPanel.classList.add('show');
+    settingsPanel.setAttribute('aria-hidden', 'false');
+  });
+  settingsClose.addEventListener('click', () => {
+    settingsPanel.classList.remove('show');
+    settingsPanel.setAttribute('aria-hidden', 'true');
+  });
+  settingsPanel.addEventListener('click', (e) => {
+    if (e.target === settingsPanel) {
+      settingsPanel.classList.remove('show');
+      settingsPanel.setAttribute('aria-hidden', 'true');
+    }
   });
 
-  toggleWalls.addEventListener('change', () => {
-    wallsOn = toggleWalls.checked; saveWalls(); showToast(`Walls ${wallsOn ? 'ON' : 'OFF'}`);
-  });
-
-  selectTheme.addEventListener('change', () => { applyTheme(selectTheme.value); saveTheme(); });
-  btnTheme.addEventListener('click', () => { applyTheme(theme === 'dark' ? 'light' : 'dark'); selectTheme.value = theme; saveTheme(); });
-
-  // ----- Game control -----
-  function toggleRunPause(force) {
-    if (typeof force === 'boolean') running = force; else running = !running;
-    if (over) running = false;
-    updateHUD();
-  }
-  function restart(hard = false) {
-    resetGame(hard);
-    running = true;
-    over = false;
-    updateHUD();
-  }
+  selWalls.addEventListener('change', (e) => setWalls(e.target.value));
+  selTheme.addEventListener('change', (e) => setTheme(e.target.value));
 
   // ----- Game loop -----
-  function tickUpdate() {
-    // Apply queued direction
+  function setTick() {
+    clearInterval(tickTimer);
+    tickTimer = setInterval(() => {
+      if (!running || gameOver) return;
+      step();
+      draw();
+    }, speedForLevel(level));
+  }
+
+  function step() {
+    // apply queued direction
     dir = nextDir;
 
+    // compute next head
     const head = snake[0];
     let nx = head.x + dir.x;
     let ny = head.y + dir.y;
 
     if (wallsOn) {
-      if (nx < 0 || nx >= GRID || ny < 0 || ny >= GRID) return endGame();
+      if (nx < 0 || nx >= COLS || ny < 0 || ny >= ROWS) {
+        return endGame();
+      }
     } else {
-      nx = clampWrap(nx, 0, GRID - 1);
-      ny = clampWrap(ny, 0, GRID - 1);
+      nx = wrap(nx, COLS);
+      ny = wrap(ny, ROWS);
     }
 
     const newHead = { x: nx, y: ny };
-    const now = performance.now();
-    const hitsRed = cellEq(newHead, food);
-    const hitsBonus = bonus && cellEq(newHead, bonus);
-    const willGrow = hitsRed || hitsBonus;
 
-    // Self-collision fix: allow stepping into current tail if not growing
-    const limit = snake.length - (willGrow ? 0 : 1); // exclude last when not growing
-    for (let i = 0; i < limit; i++) {
-      if (cellEq(newHead, snake[i])) return endGame();
+    // self-collision
+    if (inSnake(newHead)) {
+      return endGame();
     }
 
-    // Move head
+    // move
     snake.unshift(newHead);
 
-    if (hitsRed) {
+    // eating logic
+    let ate = false;
+
+    if (food && posEq(newHead, food)) {
+      ate = true;
       score += 1;
-      redsEaten += 1;
-      mouthOpenUntil = now + 300;
-      food = spawnFood();
-      if (redsEaten % BONUS_INTERVAL === 0) spawnBonus();
-      // grow: do not pop
-    } else if (hitsBonus) {
-      score += BONUS_POINTS;
-      mouthOpenUntil = now + 300;
-      bonus = null;
-      // grow: do not pop
-    } else {
-      // regular move
+      foodsEaten += 1;
+      lastEatTime = performance.now();
+      // play eat
+      sEat.currentTime = 0; sEat.play().catch(()=>{});
+      spawnFood(true);
+      // maybe spawn bonus
+      if (foodsEaten % FOODS_PER_BONUS === 0) {
+        spawnBonus();
+      }
+    }
+
+    if (bonusFood && posEq(newHead, bonusFood)) {
+      ate = true;
+      score += BONUS_VALUE;
+      bonusFood = null;
+      lastEatTime = performance.now();
+      sEat.currentTime = 0; sEat.play().catch(()=>{});
+    }
+
+    if (!ate) {
+      // remove tail
       snake.pop();
     }
 
-    // Bonus expiration
-    if (bonus && now > bonus.expiresAt) bonus = null;
+    // bonus expiration
+    if (bonusFood && performance.now() > bonusFood.expires) {
+      bonusFood = null;
+    }
 
-    // High score and level
-    if (score > highScore) { highScore = score; saveHigh(); }
+    // level progression
     const newLevel = Math.floor(score / POINTS_PER_LEVEL) + 1;
-    if (newLevel !== level) { level = newLevel; showToast(`Level ${level}! Speed up`); }
+    if (newLevel !== level) {
+      level = newLevel;
+      setTick();
+    }
+
+    // high score
+    if (score > high) {
+      high = score;
+      localStorage.setItem('snake_highscore_v1', String(high));
+    }
 
     updateHUD();
-    changedThisTick = false;
   }
 
   function endGame() {
+    gameOver = true;
     running = false;
-    over = true;
     updateHUD();
-    showToast('Game Over — tap ↻ to restart', 1800);
+    clearInterval(tickTimer);
+    // hit sound
+    sHit.currentTime = 0; sHit.play().catch(()=>{});
   }
 
-  function loop(ts) {
-    if (!lastTs) lastTs = ts;
-    const dt = ts - lastTs;
-    lastTs = ts;
-
-    if (running && !over) {
-      acc += dt;
-      const step = stepMs();
-      while (acc >= step) {
-        tickUpdate();
-        acc -= step;
-      }
-    } else {
-      changedThisTick = false; // allow pre-input
-    }
-
-    draw();
-    requestAnimationFrame(loop);
-  }
-
-  // ----- Rendering -----
+  // ----- Draw -----
   function draw() {
-    // background
-    ctx.fillStyle = getCss('--bg', '#0e1116');
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    const cs = cellSize;
+    // Clear board
+    ctx.fillStyle = getCSS('--board-bg');
+    ctx.fillRect(0, 0, canvas.width / (window.devicePixelRatio||1), canvas.height / (window.devicePixelRatio||1));
 
-    // grid
-    ctx.strokeStyle = theme === 'light' ? 'rgba(0,0,0,0.06)' : 'rgba(255,255,255,0.05)';
+    // subtle grid
+    drawGrid();
+
+    // draw foods
+    if (food) {
+      drawFood(food.x, food.y, getCSS('--food-red'));
+    }
+    if (bonusFood) {
+      drawFood(bonusFood.x, bonusFood.y, getCSS('--food-green'));
+      // draw bonus ring timer
+      drawBonusTimer(bonusFood);
+    }
+
+    // draw snake
+    drawSnake();
+    // if game over, overlay text
+    if (gameOver) drawGameOver();
+  }
+
+  function drawGrid() {
+    const cs = cellSize;
+    const w = COLS * cs, h = ROWS * cs;
+    ctx.save();
+    ctx.strokeStyle = gridColor();
     ctx.lineWidth = 1;
-    for (let i = 1; i < GRID; i++) {
-      const p = i * tile;
-      ctx.beginPath(); ctx.moveTo(p, 0); ctx.lineTo(p, canvas.height); ctx.stroke();
-      ctx.beginPath(); ctx.moveTo(0, p); ctx.lineTo(canvas.width, p); ctx.stroke();
-    }
-
-    // food
-    if (food) drawFood(food.x, food.y, getCss('--accent-2', '#e84141'));
-    if (bonus) drawBonus(bonus);
-
-    // snake
-    if (snake.length) {
-      drawTail();
-      drawBody();
-      drawHead();
-    }
-  }
-
-  function cellRect(x, y, pad = 0) {
-    return [x * tile + pad, y * tile + pad, tile - pad * 2, tile - pad * 2];
-  }
-
-  function circle(x, y, r) {
     ctx.beginPath();
-    ctx.arc(x, y, r, 0, Math.PI * 2);
-    ctx.fill();
+    for (let x = 0; x <= COLS; x++) {
+      ctx.moveTo(x*cs + 0.5, 0);
+      ctx.lineTo(x*cs + 0.5, h);
+    }
+    for (let y = 0; y <= ROWS; y++) {
+      ctx.moveTo(0, y*cs + 0.5);
+      ctx.lineTo(w, y*cs + 0.5);
+    }
+    ctx.stroke();
+    ctx.restore();
   }
 
-  function roundRect(x, y, w, h, r) {
+  function gridColor() {
+    // compute rgba based on current --fg with low alpha, but simpler: use --grid
+    return getCSS('--grid');
+  }
+
+  function getCSS(varName) {
+    return getComputedStyle(document.documentElement).getPropertyValue(varName).trim();
+  }
+
+  function drawFood(x, y, color) {
+    const cs = cellSize;
+    const cx = x*cs + cs/2;
+    const cy = y*cs + cs/2;
+    const r = cs*0.35;
+    ctx.save();
+    ctx.fillStyle = color;
+    ctx.beginPath();
+    ctx.arc(cx, cy, r, 0, Math.PI*2);
+    ctx.fill();
+    // small highlight
+    ctx.fillStyle = 'rgba(255,255,255,0.25)';
+    ctx.beginPath();
+    ctx.arc(cx - r*0.3, cy - r*0.3, r*0.25, 0, Math.PI*2);
+    ctx.fill();
+    ctx.restore();
+  }
+
+  function drawBonusTimer(bf) {
+    const cs = cellSize;
+    const cx = bf.x*cs + cs/2;
+    const cy = bf.y*cs + cs/2;
+    const r = cs*0.45;
+    const remaining = Math.max(0, bf.expires - performance.now());
+    const t = remaining / BONUS_LIFETIME_MS;
+
+    ctx.save();
+    ctx.strokeStyle = 'rgba(255,255,255,0.65)';
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.arc(cx, cy, r, -Math.PI/2, -Math.PI/2 + Math.PI*2*t);
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  function drawSnake() {
+    if (snake.length === 0) return;
+
+    // draw body/tail first
+    for (let i = snake.length - 1; i >= 1; i--) {
+      const seg = snake[i];
+      const isTail = (i === snake.length - 1);
+      drawSegment(seg, isTail ? 'tail' : 'body');
+    }
+
+    // draw head last
+    drawHead();
+  }
+
+  function drawSegment(seg, kind) {
+    const cs = cellSize;
+    const x = seg.x*cs;
+    const y = seg.y*cs;
+    ctx.save();
+    if (kind === 'tail') {
+      // rounded pill with a smaller circle to suggest taper
+      ctx.fillStyle = getCSS('--snake-tail');
+      roundRect(ctx, x+2, y+2, cs-4, cs-4, BODY_ROUND);
+      ctx.fill();
+
+      ctx.fillStyle = getCSS('--snake-body');
+      ctx.beginPath();
+      ctx.arc(x + cs/2, y + cs/2, cs*0.18, 0, Math.PI*2);
+      ctx.fill();
+    } else {
+      ctx.fillStyle = getCSS('--snake-body');
+      roundRect(ctx, x+2, y+2, cs-4, cs-4, BODY_ROUND);
+      ctx.fill();
+    }
+    ctx.restore();
+  }
+
+  function drawHead() {
+    const cs = cellSize;
+    const head = snake[0];
+    const x = head.x*cs;
+    const y = head.y*cs;
+    const dx = dir.x, dy = dir.y;
+
+    // base head
+    ctx.save();
+    ctx.fillStyle = getCSS('--snake-head');
+    roundRect(ctx, x+1, y+1, cs-2, cs-2, BODY_ROUND+2);
+    ctx.fill();
+
+    // mouth orientation and animation
+    const tNow = performance.now();
+    const mouthOpen = (tNow - lastEatTime) < MOUTH_OPEN_MS;
+    const mouthWidth = mouthOpen ? cs*0.4 : cs*0.18;
+    const mouthDepth = mouthOpen ? cs*0.52 : cs*0.32;
+
+    // compute mouth triangle based on direction (front face)
+    const cx = x + cs/2, cy = y + cs/2;
+    const boardColor = getCSS('--board-bg');
+    ctx.fillStyle = boardColor;
+
+    ctx.beginPath();
+    if (dx === 1 && dy === 0) {
+      // right
+      ctx.moveTo(x + cs, y + cs/2);
+      ctx.lineTo(cx + mouthDepth, cy - mouthWidth/2);
+      ctx.lineTo(cx + mouthDepth, cy + mouthWidth/2);
+    } else if (dx === -1 && dy === 0) {
+      // left
+      ctx.moveTo(x, y + cs/2);
+      ctx.lineTo(cx - mouthDepth, cy - mouthWidth/2);
+      ctx.lineTo(cx - mouthDepth, cy + mouthWidth/2);
+    } else if (dx === 0 && dy === -1) {
+      // up
+      ctx.moveTo(x + cs/2, y);
+      ctx.lineTo(cx - mouthWidth/2, cy - mouthDepth);
+      ctx.lineTo(cx + mouthWidth/2, cy - mouthDepth);
+    } else if (dx === 0 && dy === 1) {
+      // down
+      ctx.moveTo(x + cs/2, y + cs);
+      ctx.lineTo(cx - mouthWidth/2, cy + mouthDepth);
+      ctx.lineTo(cx + mouthWidth/2, cy + mouthDepth);
+    }
+    ctx.closePath();
+    ctx.fill();
+
+    // eyes: two circles slightly behind the mouth
+    const eyeOffsetFront = cs*0.18;
+    const eyeSpread = cs*0.18;
+    let ex1, ey1, ex2, ey2;
+
+    if (dx === 1 && dy === 0) {
+      ex1 = cx - eyeOffsetFront; ey1 = cy - eyeSpread;
+      ex2 = cx - eyeOffsetFront; ey2 = cy + eyeSpread;
+    } else if (dx === -1 && dy === 0) {
+      ex1 = cx + eyeOffsetFront; ey1 = cy - eyeSpread;
+      ex2 = cx + eyeOffsetFront; ey2 = cy + eyeSpread;
+    } else if (dx === 0 && dy === -1) {
+      ex1 = cx - eyeSpread; ey1 = cy + eyeOffsetFront;
+      ex2 = cx + eyeSpread; ey2 = cy + eyeOffsetFront;
+    } else {
+      // down
+      ex1 = cx - eyeSpread; ey1 = cy - eyeOffsetFront;
+      ex2 = cx + eyeSpread; ey2 = cy - eyeOffsetFront;
+    }
+
+    ctx.fillStyle = 'white';
+    ctx.beginPath(); ctx.arc(ex1, ey1, cs*0.12, 0, Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(ex2, ey2, cs*0.12, 0, Math.PI*2); ctx.fill();
+
+    ctx.fillStyle = getCSS('--snake-eye');
+    ctx.beginPath(); ctx.arc(ex1, ey1, cs*0.05, 0, Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(ex2, ey2, cs*0.05, 0, Math.PI*2); ctx.fill();
+
+    ctx.restore();
+  }
+
+  function roundRect(ctx, x, y, w, h, r) {
     const rr = Math.min(r, w/2, h/2);
     ctx.beginPath();
     ctx.moveTo(x + rr, y);
@@ -384,153 +531,57 @@
     ctx.arcTo(x, y + h, x, y, rr);
     ctx.arcTo(x, y, x + w, y, rr);
     ctx.closePath();
-    ctx.fill();
   }
 
-  function drawFood(x, y, color) {
-    const cx = x * tile + tile / 2;
-    const cy = y * tile + tile / 2;
-    const r = Math.max(3, Math.floor(tile * 0.3));
-    ctx.fillStyle = color;
-    circle(cx, cy, r);
-  }
-
-  function drawBonus(b) {
-    const cx = b.x * tile + tile / 2;
-    const cy = b.y * tile + tile / 2;
-    const t = (b.expiresAt - performance.now()) / BONUS_LIFETIME_MS;
-    const pulse = 0.85 + 0.15 * Math.sin(performance.now() / 120);
-    const r = Math.max(3, Math.floor(tile * 0.28 * pulse));
-    ctx.fillStyle = getCss('--bonus', '#19c37d');
-    circle(cx, cy, r);
-    // ring
-    ctx.lineWidth = Math.max(1, Math.floor(tile * 0.08));
-    ctx.strokeStyle = 'rgba(255,255,255,0.25)';
-    ctx.beginPath(); ctx.arc(cx, cy, r + ctx.lineWidth, 0, Math.PI * 2); ctx.stroke();
-    // timer arc
-    ctx.lineWidth = Math.max(1, Math.floor(tile * 0.06));
-    ctx.strokeStyle = 'rgba(255,255,255,0.35)';
-    ctx.beginPath();
-    ctx.arc(cx, cy, r + ctx.lineWidth * 1.6, -Math.PI/2, -Math.PI/2 + Math.max(0, 2 * Math.PI * t));
-    ctx.stroke();
-  }
-
-  function drawTail() {
-    if (snake.length < 2) return;
-    const tail = snake[snake.length - 1];
-    const before = snake[snake.length - 2];
-    const vx = tail.x - before.x;
-    const vy = tail.y - before.y;
-
-    const pad = Math.max(1, Math.floor(tile * 0.12));
-    ctx.fillStyle = getCss('--accent', '#2ecc71');
-    const [x, y, w, h] = cellRect(tail.x, tail.y, pad);
-    roundRect(x, y, w, h, Math.floor(tile * 0.25));
-
-    // rounded cap
-    const cx = tail.x * tile + tile / 2;
-    const cy = tail.y * tile + tile / 2;
-    const capR = Math.max(2, Math.floor(tile * 0.28));
-    const tipOffset = Math.floor(tile * 0.25);
-    circle(cx - vx * tipOffset, cy - vy * tipOffset, capR);
-  }
-
-  function drawBody() {
-    ctx.fillStyle = getCss('--accent', '#2ecc71');
-    const pad = Math.max(1, Math.floor(tile * 0.10));
-    for (let i = 1; i < snake.length - 1; i++) {
-      const s = snake[i];
-      const [x, y, w, h] = cellRect(s.x, s.y, pad);
-      roundRect(x, y, w, h, Math.floor(tile * 0.2));
-    }
-  }
-
-  function drawHead() {
-    const head = snake[0];
-    const neck = snake[1] || head;
-
-    // head base
-    const baseColor = lighten(getCss('--accent', '#2ecc71'), 0.12);
-    ctx.fillStyle = baseColor;
-    const pad = Math.max(1, Math.floor(tile * 0.08));
-    const [x, y, w, h] = cellRect(head.x, head.y, pad);
-    roundRect(x, y, w, h, Math.floor(tile * 0.28));
-
-    // mouth
-    const now = performance.now();
-    const mouthOpen = now < mouthOpenUntil;
-    const mouthDepth = mouthOpen ? Math.floor(tile * 0.42) : Math.floor(tile * 0.22);
-    const mouthWidth = Math.floor(tile * (mouthOpen ? 0.55 : 0.38));
-    ctx.fillStyle = getCss('--bg', '#0e1116');
-
-    ctx.beginPath();
-    if (dir.x === 1) { // right
-      const mx = head.x * tile + tile - pad;
-      const my = head.y * tile + tile / 2;
-      ctx.moveTo(mx, my);
-      ctx.lineTo(mx - mouthDepth, my - mouthWidth / 2);
-      ctx.lineTo(mx - mouthDepth, my + mouthWidth / 2);
-    } else if (dir.x === -1) { // left
-      const mx = head.x * tile + pad;
-      const my = head.y * tile + tile / 2;
-      ctx.moveTo(mx, my);
-      ctx.lineTo(mx + mouthDepth, my - mouthWidth / 2);
-      ctx.lineTo(mx + mouthDepth, my + mouthWidth / 2);
-    } else if (dir.y === 1) { // down
-      const mx = head.x * tile + tile / 2;
-      const my = head.y * tile + tile - pad;
-      ctx.moveTo(mx, my);
-      ctx.lineTo(mx - mouthWidth / 2, my - mouthDepth);
-      ctx.lineTo(mx + mouthWidth / 2, my - mouthDepth);
-    } else { // up
-      const mx = head.x * tile + tile / 2;
-      const my = head.y * tile + pad;
-      ctx.moveTo(mx, my);
-      ctx.lineTo(mx - mouthWidth / 2, my + mouthDepth);
-      ctx.lineTo(mx + mouthWidth / 2, my + mouthDepth);
-    }
-    ctx.closePath();
-    ctx.fill();
-
-    // eyes slightly behind mouth
-    const cx = head.x * tile + tile / 2;
-    const cy = head.y * tile + tile / 2;
-    const eyeR = Math.max(2, Math.floor(tile * 0.10));
-    const eyeOffsetFront = Math.floor(tile * 0.28);
-    const eyeOffsetSide = Math.floor(tile * 0.22);
-
-    let e1x, e1y, e2x, e2y;
-    if (dir.x === 1) {
-      e1x = cx + tile / 2 - eyeOffsetFront; e1y = cy - eyeOffsetSide;
-      e2x = cx + tile / 2 - eyeOffsetFront; e2y = cy + eyeOffsetSide;
-    } else if (dir.x === -1) {
-      e1x = cx - tile / 2 + eyeOffsetFront; e1y = cy - eyeOffsetSide;
-      e2x = cx - tile / 2 + eyeOffsetFront; e2y = cy + eyeOffsetSide;
-    } else if (dir.y === 1) {
-      e1x = cx - eyeOffsetSide; e1y = cy + tile / 2 - eyeOffsetFront;
-      e2x = cx + eyeOffsetSide; e2y = cy + tile / 2 - eyeOffsetFront;
-    } else {
-      e1x = cx - eyeOffsetSide; e1y = cy - tile / 2 + eyeOffsetFront;
-      e2x = cx + eyeOffsetSide; e2y = cy - tile / 2 + eyeOffsetFront;
-    }
-    ctx.fillStyle = getCss('--bg', '#0e1116');
-    circle(e1x, e1y, eyeR);
-    circle(e2x, e2y, eyeR);
+  function drawGameOver() {
+    const w = COLS * cellSize, h = ROWS * cellSize;
+    ctx.save();
+    ctx.fillStyle = 'rgba(0,0,0,0.4)';
+    ctx.fillRect(0, 0, w, h);
+    ctx.fillStyle = 'white';
+    ctx.font = 'bold 28px system-ui, -apple-system, Segoe UI';
+    ctx.textAlign = 'center';
+    ctx.fillText('Game Over', w/2, h/2 - 8);
+    ctx.font = '16px system-ui, -apple-system, Segoe UI';
+    ctx.fillText('Press Enter or Center Button to restart', w/2, h/2 + 18);
+    ctx.restore();
   }
 
   // ----- Start -----
-  function init() {
-    loadPrefs();
-    fitCanvas();
-    resetGame(true);
-    updateHUD();
-    showIntro();
-    requestAnimationFrame(loop);
+  function initSettings() {
+    // load persisted settings if desired; default walls on, theme dark
+    selWalls.value = wallsOn ? 'on' : 'off';
+    selTheme.value = theme;
   }
 
-  window.addEventListener('resize', () => {
-    fitCanvas(); // grid-based render means no rescale math needed
-  });
+  function autoHideIntro() {
+    setTimeout(() => {
+      intro.style.display = 'none';
+    }, 3500);
+    intro.addEventListener('click', () => { intro.style.display = 'none'; });
+  }
+
+  function init() {
+    initSettings();
+    resetGame(true);
+    autoHideIntro();
+    updateHUD();
+    // resume drawing on resize for crispness
+    window.addEventListener('resize', resizeForDPR);
+    resizeForDPR();
+
+    // Attempt to unlock audio on first interaction to avoid autoplay issues
+    const unlock = () => {
+      [sEat, sSpawn, sHit].forEach(a => {
+        a.muted = false;
+        a.play().then(()=>a.pause()).catch(()=>{});
+      });
+      window.removeEventListener('pointerdown', unlock, { passive: true });
+      window.removeEventListener('keydown', unlock, { passive: true });
+    };
+    window.addEventListener('pointerdown', unlock, { passive: true });
+    window.addEventListener('keydown', unlock, { passive: true });
+  }
 
   init();
 })();
