@@ -3,7 +3,7 @@
   const COLS = 30, ROWS = 30;
 
   // Levels: lower ms = faster; level increases every 50 points
-  const LEVEL_SPEEDS_MS = [150, 125, 105, 90, 78, 68, 60];
+  const LEVEL_SPEEDS_MS = [150, 130, 112, 96, 84, 74, 66, 60, 54];
   const POINTS_PER_LEVEL = 50;
 
   // Drawing
@@ -20,6 +20,7 @@
   // ----- Elements -----
   const canvas = document.getElementById('board');
   const ctx = canvas.getContext('2d');
+
   const scoreEl = document.getElementById('score');
   const highEl = document.getElementById('high');
   const levelEl = document.getElementById('level');
@@ -43,42 +44,41 @@
 
   // ----- State -----
   let snake = []; // head at index 0
-  let dir = { x: 1, y: 0 };       // always start moving right
+  let dir = { x: 1, y: 0 }; // start moving right
   let nextDir = { x: 1, y: 0 };
   let tickTimer = null;
   let running = false;
   let gameOver = false;
 
   let score = 0;
-  let high = Number(localStorage.getItem('snake_highscore_v3') || 0);
+  let high = Number(localStorage.getItem('snake_highscore_md') || 0);
   let level = 1;
 
   let wallsOn = true;
   let theme = document.documentElement.getAttribute('data-theme') || 'dark';
 
-  let food = null; // red
-  let bonusFood = null; // green
+  let food = null;       // red
+  let bonusFood = null;  // green
   let normalFoodsEaten = 0;
-  let lastEatTime = 0; // for mouth open
+  let lastEatTime = 0;   // for mouth open animation
 
   // Sounds (place files at sounds/eat.mp3, sounds/spawn.mp3, sounds/hit.mp3)
   const sEat = new Audio('sounds/eat.mp3');
   const sSpawn = new Audio('sounds/spawn.mp3');
   const sHit = new Audio('sounds/hit.mp3');
-  [sEat, sSpawn, sHit].forEach(a => { a.preload = 'auto'; a.volume = 0.85; });
+  [sEat, sSpawn, sHit].forEach(a => { a.preload = 'auto'; a.volume = 0.9; });
 
   // ----- Utilities -----
   const randInt = n => Math.floor(Math.random() * n);
   const posEq = (a, b) => a && b && a.x === b.x && a.y === b.y;
   const wrap = (x, max) => (x + max) % max;
-
   const getCSS = name => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
 
   function updateHUD() {
     scoreEl.textContent = String(score);
     highEl.textContent = String(high);
     levelEl.textContent = String(level);
-    btnCenter.textContent = gameOver ? '⟳' : (running ? '⏸' : '▶');
+    btnCenter.textContent = gameOver ? '⟲' : (running ? '⏸' : '▶');
   }
 
   const speedForLevel = lv => LEVEL_SPEEDS_MS[Math.min(LEVEL_SPEEDS_MS.length - 1, lv - 1)];
@@ -96,13 +96,10 @@
   }
 
   // ----- Food placement -----
-  function inSnake(p) {
-    return snake.some(s => s.x === p.x && s.y === p.y);
-  }
+  function inSnake(p) { return snake.some(s => s.x === p.x && s.y === p.y); }
 
   function spawnFood() {
-    let p;
-    let tries = 0;
+    let p, tries = 0;
     do {
       p = { x: randInt(COLS), y: randInt(ROWS) };
       tries++;
@@ -112,34 +109,31 @@
   }
 
   function spawnBonus() {
-    let p;
-    let tries = 0;
+    let p, tries = 0;
     do {
       p = { x: randInt(COLS), y: randInt(ROWS) };
       tries++;
       if (tries > 2000) break;
     } while (inSnake(p) || (food && posEq(p, food)));
     bonusFood = { x: p.x, y: p.y, expires: performance.now() + BONUS_LIFETIME_MS };
-    sSpawn.currentTime = 0; sSpawn.play().catch(()=>{});
+    sSpawn.currentTime = 0;
+    sSpawn.play().catch(() => {});
   }
 
   // ----- Snake init/reset -----
   function resetSnake() {
     snake = [];
-    const startLen = Math.max(3, Math.floor(COLS / 4)); // quarter of board width
+    // Start length = quarter of play-zone width (at least 4)
+    const startLen = Math.max(4, Math.floor(COLS * 0.25));
     const y = Math.floor(ROWS / 2);
-    const headX = Math.floor(COLS / 2) + Math.floor(startLen / 2); // room to the left
-    // Build body from left to right with head at the rightmost cell
-    for (let i = startLen - 1; i >= 0; i--) {
+    const headX = Math.floor(COLS / 2) - 1;
+
+    // Build to the left so we have room to move right
+    for (let i = 0; i < startLen; i++) {
       snake.push({ x: headX - i, y });
     }
-    // Ensure head is at index 0 and movement to the right
-    snake = [snake[snake.length - 1], ...snake.slice(0, -1)].reverse(); // normalize order
-    // Simpler: explicitly rebuild with head first
-    snake = [];
-    for (let i = 0; i < startLen; i++) {
-      snake.unshift({ x: headX - i, y }); // head at index 0 (rightmost), tail to the left
-    }
+    // Ensure head is index 0 (rightmost)
+    snake.sort((a, b) => b.x - a.x);
     dir = { x: 1, y: 0 };
     nextDir = { x: 1, y: 0 };
   }
@@ -153,6 +147,7 @@
     normalFoodsEaten = 0;
     bonusFood = null;
     lastEatTime = 0;
+
     resetSnake();
     spawnFood();
     updateHUD();
@@ -169,10 +164,7 @@
     }, speedForLevel(level));
   }
 
-  function stopLoop() {
-    clearInterval(tickTimer);
-    tickTimer = null;
-  }
+  function stopLoop() { clearInterval(tickTimer); tickTimer = null; }
 
   // ----- Input -----
   function setDirection(dx, dy) {
@@ -184,6 +176,7 @@
   window.addEventListener('keydown', (e) => {
     const k = e.key.toLowerCase();
     if (['arrowup','arrowdown','arrowleft','arrowright','w','a','s','d',' ','enter'].includes(k)) e.preventDefault();
+
     if (k === 'arrowup' || k === 'w') setDirection(0, -1);
     else if (k === 'arrowdown' || k === 's') setDirection(0, 1);
     else if (k === 'arrowleft' || k === 'a') setDirection(-1, 0);
@@ -223,7 +216,6 @@
       settingsPanel.setAttribute('aria-hidden', 'true');
     }
   });
-
   selWalls.addEventListener('change', (e) => { wallsOn = (e.target.value === 'on'); });
   selTheme.addEventListener('change', (e) => {
     theme = e.target.value;
@@ -270,14 +262,14 @@
       score += 1;
       normalFoodsEaten += 1;
       lastEatTime = performance.now();
-      sEat.currentTime = 0; sEat.play().catch(()=>{});
+      sEat.currentTime = 0; sEat.play().catch(() => {});
       spawnFood();
       if (normalFoodsEaten % FOODS_PER_BONUS === 0) spawnBonus();
     } else if (willEatBonus) {
       score += BONUS_VALUE;
       lastEatTime = performance.now();
       bonusFood = null;
-      sEat.currentTime = 0; sEat.play().catch(()=>{});
+      sEat.currentTime = 0; sEat.play().catch(() => {});
     } else {
       // no eat → drop tail
       snake.pop();
@@ -298,7 +290,7 @@
     // high score
     if (score > high) {
       high = score;
-      localStorage.setItem('snake_highscore_v3', String(high));
+      localStorage.setItem('snake_highscore_md', String(high));
     }
 
     updateHUD();
@@ -309,12 +301,13 @@
     running = false;
     stopLoop();
     updateHUD();
-    sHit.currentTime = 0; sHit.play().catch(()=>{});
+    sHit.currentTime = 0; sHit.play().catch(() => {});
   }
 
   // ----- Draw -----
   function draw() {
     const w = COLS * cellSize, h = ROWS * cellSize;
+
     // background
     ctx.fillStyle = getCSS('--board-bg');
     ctx.fillRect(0, 0, w, h);
@@ -332,6 +325,7 @@
     // snake
     drawSnake();
 
+    // overlay
     if (gameOver) drawGameOver();
   }
 
@@ -362,7 +356,8 @@
     ctx.beginPath();
     ctx.arc(cx, cy, r, 0, Math.PI*2);
     ctx.fill();
-    // highlight
+
+    // subtle highlight
     ctx.fillStyle = 'rgba(255,255,255,0.25)';
     ctx.beginPath();
     ctx.arc(cx - r*0.3, cy - r*0.3, r*0.25, 0, Math.PI*2);
@@ -376,6 +371,7 @@
     const r = cellSize*0.45;
     const remaining = Math.max(0, bf.expires - performance.now());
     const t = remaining / BONUS_LIFETIME_MS;
+
     ctx.save();
     ctx.strokeStyle = 'rgba(255,255,255,0.7)';
     ctx.lineWidth = 3;
@@ -395,7 +391,7 @@
       drawSegment(seg, isTail ? 'tail' : 'body');
     }
 
-    // head
+    // head last so it sits on top
     drawHead();
   }
 
@@ -408,6 +404,7 @@
       roundRect(ctx, x+2, y+2, cellSize-4, cellSize-4, BODY_ROUND);
       ctx.fill();
 
+      // small nub for tip
       ctx.fillStyle = getCSS('--snake-body');
       ctx.beginPath();
       ctx.arc(x + cellSize/2, y + cellSize/2, cellSize*0.18, 0, Math.PI*2);
@@ -427,12 +424,13 @@
     const dx = dir.x, dy = dir.y;
 
     ctx.save();
+
     // head base
     ctx.fillStyle = getCSS('--snake-head');
     roundRect(ctx, x+1, y+1, cellSize-2, cellSize-2, BODY_ROUND+2);
     ctx.fill();
 
-    // mouth
+    // mouth (directional wedge)
     const tNow = performance.now();
     const mouthOpen = (tNow - lastEatTime) < MOUTH_OPEN_MS;
     const mouthWidth = mouthOpen ? cellSize*0.42 : cellSize*0.2;
@@ -525,8 +523,8 @@
   function init() {
     initSettings();
     resetGame(true);      // fresh state and spawn first food
-    resizeForDPR();       // make canvas crisp
-    startLoop();          // auto-start movement to the right
+    resizeForDPR();       // crisp canvas
+    startLoop();          // auto-start movement
     updateHUD();
 
     window.addEventListener('resize', resizeForDPR);
@@ -535,7 +533,7 @@
     const unlock = () => {
       [sEat, sSpawn, sHit].forEach(a => {
         a.muted = false;
-        a.play().then(()=>a.pause()).catch(()=>{});
+        a.play().then(() => a.pause()).catch(() => {});
       });
       window.removeEventListener('pointerdown', unlock);
       window.removeEventListener('keydown', unlock);
