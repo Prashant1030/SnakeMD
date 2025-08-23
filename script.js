@@ -11,7 +11,7 @@ let direction = "RIGHT";
 let food = spawnFood();
 let score = 0;
 let highScore = localStorage.getItem("highScore") || 0;
-let wallCollision = true;
+let wallCollision = false;
 
 const eatSound = new Audio("sounds/eat.mp3");
 const dieSound = new Audio("sounds/die.mp3");
@@ -121,3 +121,4 @@ function resetGame() {
 }
 
 setInterval(draw, 100);
+
