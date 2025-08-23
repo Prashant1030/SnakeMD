@@ -564,11 +564,6 @@ const hitSound = new Audio("sounds/hit.mp3");
     highScoreEl.textContent = '0';
   });
 
-  startBtn.addEventListener('click', () => {
-    overlay.style.display = 'none';
-    restart();
-  });
-
   // Initialize UI from store
   applyTheme(store.theme);
   themeSelect.value = store.theme;
@@ -580,11 +575,17 @@ const hitSound = new Audio("sounds/hit.mp3");
   // Idle draw (shows board before start)
   drawFrame(false);
   
-  // Auto-start game
-  overlay.style.display = 'none';
-  restart();
+window.addEventListener('load', () => {
+  setTimeout(() => {
+    overlay.style.display = 'none';
+    restart();
+  }, 1000); // 1 second delay
+});
+
+
   
 })();
+
 
 
 
