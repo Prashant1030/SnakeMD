@@ -2,33 +2,52 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1, viewport-fit=cover"
+  />
   <title>Snake Evolution</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <h1>🐍 Snake Evolution</h1>
+  <main class="app">
+    <header class="topbar">
+      <h1 class="title">🐍 Snake Evolution</h1>
 
-  <div class="topbar">
-    <div class="scoreboard">
-      <span id="score">Score: 0</span>
-      <span id="highscore">High Score: 0</span>
-    </div>
-    <button id="toggleWall" class="toggle">Wall: ON</button>
-  </div>
+      <div class="hud">
+        <div class="hud-item">
+          <span class="label">Score:</span>
+          <span id="score" class="value">0</span>
+        </div>
+        <div class="hud-item">
+          <span class="label">High Score:</span>
+          <span id="highScore" class="value">0</span>
+        </div>
+        <div class="hud-item">
+          <label class="toggle">
+            <input id="wallToggle" type="checkbox" checked />
+            <span>Wall: <strong id="wallState">ON</strong></span>
+          </label>
+        </div>
+      </div>
+    </header>
 
-  <canvas id="gameCanvas" width="480" height="480" aria-label="Snake Game"></canvas>
+    <section class="board-wrap">
+      <canvas id="game" width="480" height="480" aria-label="Snake board"></canvas>
+    </section>
 
-  <div class="pad" aria-label="Game Controls">
-    <button class="btn dir up" data-dir="UP" aria-label="Up">▲</button>
-    <button class="btn dir left" data-dir="LEFT" aria-label="Left">◀</button>
-    <button id="pausePlay" class="btn center" aria-label="Pause/Play">⏸</button>
-    <button class="btn dir right" data-dir="RIGHT" aria-label="Right">▶</button>
-    <button class="btn dir down" data-dir="DOWN" aria-label="Down">▼</button>
-  </div>
+    <section class="controls" aria-label="Controls">
+      <button id="btnUp" class="btn" aria-label="Up">▲</button>
+      <div class="row">
+        <button id="btnLeft" class="btn" aria-label="Left">◀</button>
+        <button id="btnPause" class="btn" aria-label="Pause">⏸</button>
+        <button id="btnRight" class="btn" aria-label="Right">▶</button>
+      </div>
+      <button id="btnDown" class="btn" aria-label="Down">▼</button>
+    </section>
 
-  <audio id="eatSound" src="sounds/eat.mp3"></audio>
-  <audio id="hitSound" src="sounds/hit.mp3"></audio>
+    <p class="hint">Use arrow keys or the on-screen controls. Press Space to pause.</p>
+  </main>
 
   <script src="script.js"></script>
 </body>
