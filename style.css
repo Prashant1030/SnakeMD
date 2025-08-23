@@ -4,7 +4,7 @@ body {
   font-family: 'Segoe UI', sans-serif;
   text-align: center;
   margin: 0;
-  padding: 20px;
+  padding: 18px;
 }
 
 h1 {
@@ -52,7 +52,9 @@ canvas {
 }
 
 .wall-toggle {
-  margin-top: 15px;
+  margin-top: 10px;
   font-size: 1em;
+  align: center;
 }
+
 
