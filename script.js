@@ -572,4 +572,6 @@
 
   // Idle draw (shows board before start)
   drawFrame(false);
+  startBtn.click();
 })();
+
