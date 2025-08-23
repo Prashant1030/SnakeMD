@@ -1,18 +1,20 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Snake Evolution</title>
-  <link rel="stylesheet" href="style.css" />
-</head>
-<body>
-  <h1>🐍 Snake Evolution</h1>
-  <canvas id="game" width="400" height="400"></canvas>
-  <div class="scoreboard">
-    <span id="scoreBox">Score: 0</span>
-    <span id="highScoreBox">High Score: 0</span>
-  </div>
-  <script src="script.js"></script>
-</body>
-</html>
+<canvas id="game" width="480" height="480"></canvas>
+
+<div class="controls">
+  <button id="btnUp">↑</button>
+  <button id="btnLeft">←</button>
+  <button id="btnPause">⏸</button>
+  <button id="btnRight">→</button>
+  <button id="btnDown">↓</button>
+</div>
+
+<div class="scoreboard">
+  <span>Score: <span id="score">0</span></span>
+  <span>High Score: <span id="highScore">0</span></span>
+</div>
+
+<label>
+  Wall Collision:
+  <input type="checkbox" id="wallToggle" checked />
+  <span id="wallState">ON</span>
+</label>
