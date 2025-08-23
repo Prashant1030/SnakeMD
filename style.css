@@ -109,7 +109,7 @@ body {
 .ctrl-right { right: 8px; top: 50%; transform: translateY(-50%); }
 
 .ctrl-center {
-  width: 96px; height: 96px;
+  width: 50px; height: 50px;
   left: 50%; top: 50%; transform: translate(-50%,-50%);
   background: var(--accent); color: white; border: none;
 }
@@ -149,4 +149,5 @@ body {
   .ctrl { width: 74px; height: 74px; font-size: 24px; }
   .ctrl-center { width: 86px; height: 86px; }
 }
+
 
