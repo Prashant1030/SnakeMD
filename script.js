@@ -1,10 +1,9 @@
 (() => {
   // ----- Config -----
-  const COLS = 30;
-  const ROWS = 30;
+  const COLS = 30, ROWS = 30;
 
-  // Levels: lower ms = faster
-  const LEVEL_SPEEDS_MS = [150, 125, 105, 90, 78, 68, 60]; // Level 1..n
+  // Levels: lower ms = faster; level increases every 50 points
+  const LEVEL_SPEEDS_MS = [150, 125, 105, 90, 78, 68, 60];
   const POINTS_PER_LEVEL = 50;
 
   // Drawing
@@ -37,8 +36,6 @@
   const btnRight = document.getElementById('btn-right');
   const btnCenter = document.getElementById('btn-center');
 
-  const intro = document.getElementById('intro');
-
   // ----- Sizing -----
   let cellSize = Math.floor(canvas.width / COLS);
   canvas.width = cellSize * COLS;
@@ -46,14 +43,14 @@
 
   // ----- State -----
   let snake = []; // head at index 0
-  let dir = { x: 1, y: 0 };
+  let dir = { x: 1, y: 0 };       // always start moving right
   let nextDir = { x: 1, y: 0 };
   let tickTimer = null;
   let running = false;
   let gameOver = false;
 
   let score = 0;
-  let high = Number(localStorage.getItem('snake_highscore_v2') || 0);
+  let high = Number(localStorage.getItem('snake_highscore_v3') || 0);
   let level = 1;
 
   let wallsOn = true;
@@ -64,7 +61,7 @@
   let normalFoodsEaten = 0;
   let lastEatTime = 0; // for mouth open
 
-  // Sounds
+  // Sounds (place files at sounds/eat.mp3, sounds/spawn.mp3, sounds/hit.mp3)
   const sEat = new Audio('sounds/eat.mp3');
   const sSpawn = new Audio('sounds/spawn.mp3');
   const sHit = new Audio('sounds/hit.mp3');
@@ -74,8 +71,6 @@
   const randInt = n => Math.floor(Math.random() * n);
   const posEq = (a, b) => a && b && a.x === b.x && a.y === b.y;
   const wrap = (x, max) => (x + max) % max;
-
-  const inSnake = p => snake.some(s => s.x === p.x && s.y === p.y);
 
   const getCSS = name => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
 
@@ -101,10 +96,17 @@
   }
 
   // ----- Food placement -----
+  function inSnake(p) {
+    return snake.some(s => s.x === p.x && s.y === p.y);
+  }
+
   function spawnFood() {
     let p;
+    let tries = 0;
     do {
       p = { x: randInt(COLS), y: randInt(ROWS) };
+      tries++;
+      if (tries > 2000) break; // fail-safe
     } while (inSnake(p) || (bonusFood && posEq(p, bonusFood)));
     food = { x: p.x, y: p.y };
   }
@@ -115,7 +117,7 @@
     do {
       p = { x: randInt(COLS), y: randInt(ROWS) };
       tries++;
-      if (tries > 1000) break;
+      if (tries > 2000) break;
     } while (inSnake(p) || (food && posEq(p, food)));
     bonusFood = { x: p.x, y: p.y, expires: performance.now() + BONUS_LIFETIME_MS };
     sSpawn.currentTime = 0; sSpawn.play().catch(()=>{});
@@ -126,9 +128,17 @@
     snake = [];
     const startLen = Math.max(3, Math.floor(COLS / 4)); // quarter of board width
     const y = Math.floor(ROWS / 2);
-    const headX = Math.floor(COLS / 2);
+    const headX = Math.floor(COLS / 2) + Math.floor(startLen / 2); // room to the left
+    // Build body from left to right with head at the rightmost cell
+    for (let i = startLen - 1; i >= 0; i--) {
+      snake.push({ x: headX - i, y });
+    }
+    // Ensure head is at index 0 and movement to the right
+    snake = [snake[snake.length - 1], ...snake.slice(0, -1)].reverse(); // normalize order
+    // Simpler: explicitly rebuild with head first
+    snake = [];
     for (let i = 0; i < startLen; i++) {
-      snake.unshift({ x: headX - i, y });
+      snake.unshift({ x: headX - i, y }); // head at index 0 (rightmost), tail to the left
     }
     dir = { x: 1, y: 0 };
     nextDir = { x: 1, y: 0 };
@@ -173,9 +183,7 @@
 
   window.addEventListener('keydown', (e) => {
     const k = e.key.toLowerCase();
-    const isArrow = k.startsWith('arrow');
-    if (isArrow || ['w','a','s','d',' ' , 'enter'].includes(k)) e.preventDefault();
-
+    if (['arrowup','arrowdown','arrowleft','arrowright','w','a','s','d',' ','enter'].includes(k)) e.preventDefault();
     if (k === 'arrowup' || k === 'w') setDirection(0, -1);
     else if (k === 'arrowdown' || k === 's') setDirection(0, 1);
     else if (k === 'arrowleft' || k === 'a') setDirection(-1, 0);
@@ -216,9 +224,7 @@
     }
   });
 
-  selWalls.addEventListener('change', (e) => {
-    wallsOn = (e.target.value === 'on');
-  });
+  selWalls.addEventListener('change', (e) => { wallsOn = (e.target.value === 'on'); });
   selTheme.addEventListener('change', (e) => {
     theme = e.target.value;
     document.documentElement.setAttribute('data-theme', theme);
@@ -227,12 +233,15 @@
 
   // ----- Game step -----
   function step() {
+    // queue → active direction
     dir = nextDir;
 
+    // compute next head position
     const head = snake[0];
     let nx = head.x + dir.x;
     let ny = head.y + dir.y;
 
+    // walls or wrap
     if (wallsOn) {
       if (nx < 0 || nx >= COLS || ny < 0 || ny >= ROWS) return endGame();
     } else {
@@ -240,46 +249,46 @@
       ny = wrap(ny, ROWS);
     }
 
-    const newHead = { x: nx, y: ny };
+    const nextHead = { x: nx, y: ny };
 
-    // self-collision
-    if (inSnake(newHead)) return endGame();
+    // Determine if we will eat this tick
+    const willEatNormal = food && posEq(nextHead, food);
+    const willEatBonus = bonusFood && posEq(nextHead, bonusFood);
+    const willEat = willEatNormal || willEatBonus;
+
+    // Self-collision check that allows moving into the current tail when not eating
+    const bodyLenToCheck = snake.length - (willEat ? 0 : 1);
+    for (let i = 0; i < bodyLenToCheck; i++) {
+      if (snake[i].x === nextHead.x && snake[i].y === nextHead.y) return endGame();
+    }
 
     // move
-    snake.unshift(newHead);
+    snake.unshift(nextHead);
 
-    let ate = false;
-
-    // eat normal food
-    if (food && posEq(newHead, food)) {
-      ate = true;
+    // eating logic
+    if (willEatNormal) {
       score += 1;
       normalFoodsEaten += 1;
       lastEatTime = performance.now();
       sEat.currentTime = 0; sEat.play().catch(()=>{});
       spawnFood();
       if (normalFoodsEaten % FOODS_PER_BONUS === 0) spawnBonus();
-    }
-
-    // eat bonus
-    if (bonusFood && posEq(newHead, bonusFood)) {
-      ate = true;
+    } else if (willEatBonus) {
       score += BONUS_VALUE;
       lastEatTime = performance.now();
       bonusFood = null;
       sEat.currentTime = 0; sEat.play().catch(()=>{});
-    }
-
-    if (!ate) {
+    } else {
+      // no eat → drop tail
       snake.pop();
     }
 
-    // expire bonus
+    // bonus expiration
     if (bonusFood && performance.now() > bonusFood.expires) {
       bonusFood = null;
     }
 
-    // level up
+    // level progression
     const newLevel = Math.floor(score / POINTS_PER_LEVEL) + 1;
     if (newLevel !== level) {
       level = newLevel;
@@ -289,7 +298,7 @@
     // high score
     if (score > high) {
       high = score;
-      localStorage.setItem('snake_highscore_v2', String(high));
+      localStorage.setItem('snake_highscore_v3', String(high));
     }
 
     updateHUD();
@@ -386,7 +395,7 @@
       drawSegment(seg, isTail ? 'tail' : 'body');
     }
 
-    // head last
+    // head
     drawHead();
   }
 
@@ -452,7 +461,7 @@
     ctx.closePath();
     ctx.fill();
 
-    // eyes
+    // eyes (two circles slightly behind the mouth)
     const eyeOffsetFront = cellSize*0.18;
     const eyeSpread = cellSize*0.18;
     let ex1, ey1, ex2, ey2;
@@ -507,12 +516,7 @@
     ctx.restore();
   }
 
-  // ----- Intro & init -----
-  function autoHideIntro() {
-    setTimeout(() => { intro.style.display = 'none'; }, 3500);
-    intro.addEventListener('click', () => { intro.style.display = 'none'; });
-  }
-
+  // ----- Init -----
   function initSettings() {
     selWalls.value = wallsOn ? 'on' : 'off';
     selTheme.value = theme;
@@ -520,15 +524,14 @@
 
   function init() {
     initSettings();
-    resetGame(true);      // set fresh state and spawn first food
+    resetGame(true);      // fresh state and spawn first food
     resizeForDPR();       // make canvas crisp
-    startLoop();          // START MOVING IMMEDIATELY
-    autoHideIntro();
+    startLoop();          // auto-start movement to the right
     updateHUD();
 
     window.addEventListener('resize', resizeForDPR);
 
-    // Unlock audio on first interaction (for mobile autoplay policies)
+    // Unlock audio on first interaction (mobile autoplay policies)
     const unlock = () => {
       [sEat, sSpawn, sHit].forEach(a => {
         a.muted = false;
