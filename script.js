@@ -27,6 +27,8 @@
   const bonusTimerEl = document.getElementById('bonusTimer');
 const eatSound = new Audio("sounds/eat.mp3");
 const hitSound = new Audio("sounds/hit.mp3");
+  const spawnSound = new Audio("sounds/spawn.mp3");
+
 
   // Responsive sizing
   function fitCanvas() {
@@ -145,6 +147,7 @@ const hitSound = new Audio("sounds/hit.mp3");
       x = Math.floor(Math.random() * COLS);
       y = Math.floor(Math.random() * ROWS);
     } while (occupied.has(`${x},${y}`));
+    spawnSound.play();
     return { x, y };
   }
 
@@ -579,6 +582,7 @@ const hitSound = new Audio("sounds/hit.mp3");
   drawFrame(false);
   startBtn.click();
 })();
+
 
 
 
