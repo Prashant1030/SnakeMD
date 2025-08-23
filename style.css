@@ -1,22 +1,101 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Snake Game</title>
-  <link rel="stylesheet" href="style.css" />
-</head>
-<body>
-  <h1>🐍 Snake Game</h1>
-  <div class="scoreboard">
-    <span id="score">Score: 0</span>
-    <span id="highscore">High Score: 0</span>
-  </div>
-  <canvas id="gameCanvas" width="400" height="400"></canvas>
+:root {
+  --bg: #111;
+  --fg: #e8e8e8;
+  --accent: #38f27c;
+  --accent-2: #ff8a00;
+  --panel: #1c1c1c;
+  --grid: #1a1a1a;
+  --food: #e94560;
+  --enemy: #66a3ff;
+  --obstacle: #8b8b8b;
+}
 
-  <audio id="eatSound" src="sounds/eat.mp3"></audio>
-  <audio id="hitSound" src="sounds/hit.mp3"></audio>
+* { box-sizing: border-box; }
 
-  <script src="script.js"></script>
-</body>
-</html>
+body {
+  margin: 0;
+  padding: 20px 16px 40px;
+  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  color: var(--fg);
+  background: radial-gradient(1000px 600px at 50% -200px, #202020, var(--bg));
+  text-align: center;
+}
+
+h1 { margin: 8px 0 12px; font-weight: 700; letter-spacing: 0.5px; }
+
+.topbar {
+  max-width: 560px;
+  margin: 0 auto 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.scoreboard { display: flex; gap: 14px; font-size: 18px; }
+
+.toggle {
+  background: var(--panel);
+  color: var(--fg);
+  border: 1px solid #333;
+  padding: 8px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+#gameCanvas {
+  display: block;
+  margin: 0 auto;
+  background: linear-gradient(180deg, #0b0b0b 0%, #0f0f0f 100%);
+  border: 2px solid #2a2a2a;
+  border-radius: 10px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.35);
+}
+
+.pad {
+  margin: 18px auto 0;
+  position: relative;
+  width: 260px;
+  height: 260px;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, #191919, #151515);
+  border: 2px solid #2a2a2a;
+  box-shadow: inset 0 10px 25px rgba(0,0,0,0.4), 0 10px 20px rgba(0,0,0,0.25);
+}
+
+.btn {
+  position: absolute;
+  width: 68px;
+  height: 68px;
+  border-radius: 50%;
+  border: 1px solid #333;
+  background: #232323;
+  color: #fff;
+  font-size: 20px;
+  cursor: pointer;
+  transition: transform 0.05s ease, background 0.2s ease;
+  user-select: none;
+}
+
+.btn:active { transform: scale(0.96); background: #2d2d2d; }
+
+.center {
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  background: var(--accent-2);
+  font-size: 26px;
+}
+
+.up    { top: 10px; left: 50%; transform: translateX(-50%); }
+.down  { bottom: 10px; left: 50%; transform: translateX(-50%); }
+.left  { left: 10px; top: 50%; transform: translateY(-50%); }
+.right { right: 10px; top: 50%; transform: translateY(-50%); }
+
+.dir { background: #262626; }
+
+/* Small screens */
+@media (max-width: 520px) {
+  .pad { width: 220px; height: 220px; }
+  .btn { width: 58px; height: 58px; font-size: 18px; }
+  .center { font-size: 22px; }
+}
