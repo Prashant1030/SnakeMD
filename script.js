@@ -1,10 +1,10 @@
 (() => {
   // Board/grid config
   const COLS = 28;
-  const ROWS = 28;
+  const ROWS = 20;
 
   // Level speeds (cells per second). Level index is 0-based internally, UI shows +1.
-  const LEVEL_SPEEDS = [2, 4, 6, 8, 10, 12, 14, 16];
+  const LEVEL_SPEEDS = [ 4, 6, 8, 10, 12, 14, 16];
 
   // DOM refs
   const canvas = document.getElementById('game');
@@ -579,6 +579,7 @@ const hitSound = new Audio("sounds/hit.mp3");
   drawFrame(false);
   startBtn.click();
 })();
+
 
 
 
