@@ -579,9 +579,13 @@ const hitSound = new Audio("sounds/hit.mp3");
 
   // Idle draw (shows board before start)
   drawFrame(false);
+  
+  // Auto-start game
   overlay.style.display = 'none';
-restart();
+  restart();
+  
 })();
+
 
 
 
