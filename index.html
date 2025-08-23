@@ -1,20 +1,64 @@
-<canvas id="game" width="480" height="480"></canvas>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SnakeMD</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      text-align: center;
+      background: #e0f7fa;
+      margin: 0;
+      padding: 20px;
+    }
+    canvas {
+      border: 2px solid #333;
+      background: #f0f0f0;
+      margin-top: 10px;
+    }
+    #scoreboard {
+      margin-bottom: 10px;
+      font-size: 1.2em;
+    }
+    #controls button {
+      font-size: 1.5em;
+      margin: 5px;
+      padding: 10px;
+      width: 60px;
+    }
+    #wallToggle {
+      margin-top: 10px;
+      padding: 8px 16px;
+      font-size: 1em;
+    }
+  </style>
+</head>
+<body>
+  <h1>🐍 SnakeMD</h1>
 
-<div class="controls">
-  <button id="btnUp">↑</button>
-  <button id="btnLeft">←</button>
-  <button id="btnPause">⏸</button>
-  <button id="btnRight">→</button>
-  <button id="btnDown">↓</button>
-</div>
+  <div id="scoreboard">
+    <div id="score">Score: 0</div>
+    <div id="highScore">High Score: 0</div>
+  </div>
 
-<div class="scoreboard">
-  <span>Score: <span id="score">0</span></span>
-  <span>High Score: <span id="highScore">0</span></span>
-</div>
+  <button id="wallToggle">Wall: ON</button>
 
-<label>
-  Wall Collision:
-  <input type="checkbox" id="wallToggle" checked />
-  <span id="wallState">ON</span>
-</label>
+  <div id="controls">
+    <div>
+      <button id="up">↑</button>
+    </div>
+    <div>
+      <button id="left">←</button>
+      <button id="right">→</button>
+    </div>
+    <div>
+      <button id="down">↓</button>
+    </div>
+  </div>
+
+  <canvas id="gameCanvas"></canvas>
+
+  <script src="script.js"></script>
+</body>
+</html>
