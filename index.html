@@ -1,92 +1,50 @@
-<!doctype html>
-<html lang="en" data-theme="dark">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Snake — Levels, Bonus, Circular Controls</title>
-    <link rel="stylesheet" href="styles.css" />
-  </head>
-  <body>
-    <!-- HUD -->
-    <header class="hud">
-      <div class="hud-left">
-        <div class="stat"><span class="label">Score</span> <span id="score">0</span></div>
-        <div class="stat"><span class="label">High</span> <span id="highScore">0</span></div>
-        <div class="stat"><span class="label">Level</span> <span id="level">1</span></div>
-        <div class="stat"><span class="label">Walls</span> <span id="wallsState">On</span></div>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>SnakeMD</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="hud">
+    <div class="hud-left">
+      <div class="stat">
+        <span class="label">Score</span>
+        <span id="score">0</span>
       </div>
-      <div class="hud-right">
-        <button id="settingsBtn" class="icon-btn" aria-label="Settings" title="Settings">⚙️</button>
+      <div class="stat">
+        <span class="label">High</span>
+        <span id="highScore">0</span>
       </div>
-    </header>
+    </div>
 
-    <!-- Playzone -->
-    <main class="game-area">
-      <canvas id="game" width="720" height="480" aria-label="Snake Playzone"></canvas>
-      <div id="bonusTimer" class="bonus-timer hidden" aria-hidden="true"></div>
+    <div class="hud-right">
+      <button id="wallToggle" class="icon-btn" aria-pressed="true" aria-label="Toggle walls">
+        Wall: ON
+      </button>
+      <button id="themeToggle" class="icon-btn" aria-label="Toggle theme">
+        Theme
+      </button>
+    </div>
+  </header>
 
-      <!-- Intro Overlay -->
-      <div id="overlay" class="overlay">
-        <div class="dialog">
-          <h2>How to Play</h2>
-          <ul>
-            <li><b>Goal:</b> Eat red food to score +1. Every 5 foods spawns a green bonus worth +5 for 4 seconds.</li>
-            <li><b>Move:</b> Arrow keys or on-screen controls. Avoid hitting yourself (or walls if enabled).</li>
-            <li><b>Levels:</b> Speed increases every 100 points. Settings let you tweak theme, walls, and level.</li>
-            <li><b>Pause:</b> Center button or Space key. After game over, center button restarts.</li>
-          </ul>
-          <div class="dialog-actions">
-            <button id="startBtn">Start Game</button>
-          </div>
-        </div>
-      </div>
-    </main>
-
-    <!-- Circular Controls -->
-    <section class="controls">
-      <div class="control-ring" role="group" aria-label="Directional Controls">
-        <button id="btnUp" class="control-btn up" aria-label="Up">▲</button>
-        <button id="btnLeft" class="control-btn left" aria-label="Left">◀</button>
-        <button id="btnRight" class="control-btn right" aria-label="Right">▶</button>
-        <button id="btnDown" class="control-btn down" aria-label="Down">▼</button>
-        <button id="btnCenter" class="center-btn" aria-label="Play/Pause">
-          <span id="centerIcon">⏸️</span>
-        </button>
-      </div>
+  <main>
+    <section class="game-area">
+      <canvas id="game" width="480" height="480" aria-label="Snake game board"></canvas>
     </section>
 
-    <!-- Settings Panel -->
-    <aside id="settingsPanel" class="settings hidden" aria-hidden="true">
-      <div class="settings-header">
-        <h3>Settings</h3>
-        <button id="closeSettings" class="icon-btn" aria-label="Close">✖️</button>
+    <section class="controls" aria-label="On-screen controls">
+      <div id="controlRing" class="control-ring">
+        <button id="btnUp" class="control-btn up" aria-label="Move up">↑</button>
+        <button id="btnLeft" class="control-btn left" aria-label="Move left">←</button>
+        <button id="btnPausePlay" class="center-btn" aria-label="Pause or play">⏸</button>
+        <button id="btnRight" class="control-btn right" aria-label="Move right">→</button>
+        <button id="btnDown" class="control-btn down" aria-label="Move down">↓</button>
       </div>
-      <div class="settings-body">
-        <div class="setting-row">
-          <label for="themeSelect"><b>Theme</b></label>
-          <select id="themeSelect">
-            <option value="dark">Dark</option>
-            <option value="light">Light</option>
-          </select>
-        </div>
-        <div class="setting-row">
-          <label for="wallsToggle"><b>Walls</b></label>
-          <select id="wallsToggle">
-            <option value="on">On (collide)</option>
-            <option value="off">Off (wrap)</option>
-          </select>
-        </div>
-        <div class="setting-row">
-          <label for="levelSelect"><b>Level</b></label>
-          <select id="levelSelect"></select>
-          <small>Reach 100 points to unlock the next level.</small>
-        </div>
-        <div class="setting-row">
-          <button id="resetProgress" class="danger">Reset High Score & Levels</button>
-        </div>
-      </div>
-    </aside>
+    </section>
+  </main>
 
-    <script src="script.js"></script>
-  </body>
+  <script src="script.js" defer></script>
+</body>
 </html>
