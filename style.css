@@ -1,29 +1,22 @@
-body {
-  text-align: center;
-  font-family: 'Segoe UI', sans-serif;
-  background-color: #f0f0f0;
-}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Snake Game</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <h1>🐍 Snake Game</h1>
+  <div class="scoreboard">
+    <span id="score">Score: 0</span>
+    <span id="highscore">High Score: 0</span>
+  </div>
+  <canvas id="gameCanvas" width="400" height="400"></canvas>
 
-#scoreboard {
-  margin: 10px;
-  font-size: 18px;
-  font-weight: bold;
-}
+  <audio id="eatSound" src="sounds/eat.mp3"></audio>
+  <audio id="hitSound" src="sounds/hit.mp3"></audio>
 
-canvas {
-  border: 3px solid #333;
-  background-color: #fff;
-  display: block;
-  margin: 0 auto;
-}
-
-#messageBox {
-  margin-top: 20px;
-  font-size: 20px;
-  color: red;
-  font-weight: bold;
-}
-
-.hidden {
-  display: none;
-}
+  <script src="script.js"></script>
+</body>
+</html>
