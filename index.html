@@ -2,67 +2,65 @@
 <html lang="en" data-theme="dark">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Snake — Levels, Bonus Food, Mobile Controls</title>
-  <link rel="stylesheet" href="style.css"/>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
   <header class="topbar">
-    <div class="brand">Snake</div>
+    <div class="brand">🐍 Snake</div>
     <div class="hud">
-      <div class="hud-item"><span class="label">Score</span> <span id="score">0</span></div>
-      <div class="hud-item"><span class="label">High</span> <span id="high">0</span></div>
-      <div class="hud-item"><span class="label">Level</span> <span id="level">1</span></div>
+      <div class="hud-item"><span class="label">Score</span><span id="score">0</span></div>
+      <div class="hud-item"><span class="label">High</span><span id="high">0</span></div>
+      <div class="hud-item"><span class="label">Level</span><span id="level">1</span></div>
     </div>
-    <button id="btn-settings" class="icon-btn" title="Settings">⚙️</button>
+    <button id="btn-settings" class="icon-btn" aria-label="Settings">⚙️</button>
   </header>
 
   <main class="game-wrap">
-    <canvas id="board" width="480" height="480" aria-label="Snake play zone"></canvas>
+    <canvas id="board" width="540" height="540" aria-label="Snake board"></canvas>
 
-    <section class="controls" aria-label="Controls">
+    <section class="controls" aria-label="Directional controls">
       <div class="dpad">
-        <button class="ctrl ctrl-up" id="btn-up" aria-label="Move up">▲</button>
-        <button class="ctrl ctrl-left" id="btn-left" aria-label="Move left">◀</button>
-        <button class="ctrl ctrl-right" id="btn-right" aria-label="Move right">▶</button>
-        <button class="ctrl ctrl-down" id="btn-down" aria-label="Move down">▼</button>
-        <button class="ctrl ctrl-center" id="btn-center" aria-label="Pause/Play/Restart">⏸</button>
+        <button id="btn-up" class="ctrl ctrl-up" aria-label="Up">▲</button>
+        <button id="btn-left" class="ctrl ctrl-left" aria-label="Left">◀</button>
+        <button id="btn-center" class="ctrl ctrl-center" aria-label="Play/Pause/Restart">▶</button>
+        <button id="btn-right" class="ctrl ctrl-right" aria-label="Right">▶</button>
+        <button id="btn-down" class="ctrl ctrl-down" aria-label="Down">▼</button>
       </div>
       <p class="ctrl-hint">Arrow keys/WASD or tap buttons. Center pauses/plays and restarts after game over.</p>
     </section>
   </main>
 
-  <section class="settings-panel" id="settings-panel" aria-hidden="true">
+  <div class="settings-panel" id="settings-panel" aria-hidden="true">
     <div class="panel-card">
       <div class="panel-head">
-        <h2>Settings</h2>
-        <button id="btn-close-settings" class="icon-btn" aria-label="Close settings">✖</button>
+        <strong>Settings</strong>
+        <button id="btn-close-settings" class="icon-btn" aria-label="Close">✖</button>
       </div>
       <div class="panel-body">
         <div class="setting">
-          <label for="toggle-walls"><strong>Walls:</strong></label>
+          <label for="toggle-walls"><strong>Walls</strong></label>
           <select id="toggle-walls">
-            <option value="on">Keep walls (hit = game over)</option>
-            <option value="off">No walls (wrap-around)</option>
+            <option value="on">On (hit = game over)</option>
+            <option value="off">Off (wrap around)</option>
           </select>
         </div>
-
         <div class="setting">
-          <label for="toggle-theme"><strong>Theme:</strong></label>
+          <label for="toggle-theme"><strong>Theme</strong></label>
           <select id="toggle-theme">
             <option value="dark">Dark</option>
             <option value="light">Light</option>
           </select>
         </div>
-
-        <div class="setting">
-          <div><strong>Levels & Speed:</strong></div>
-          <p class="small">Levels increase automatically every 50 points. Higher level = faster snake.</p>
-        </div>
+        <p class="small">
+          Levels increase snake speed every 50 points. Bonus food appears after every 5 foods and lasts 4 seconds.
+        </p>
       </div>
     </div>
-  </section>
+  </div>
 
+  <!-- Audio files must exist at sounds/eat.mp3, sounds/spawn.mp3, sounds/hit.mp3 -->
   <script src="script.js"></script>
 </body>
 </html>
