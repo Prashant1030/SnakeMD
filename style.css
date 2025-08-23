@@ -8,8 +8,8 @@ body {
 }
 
 h1 {
-  margin-bottom: 10px;
   font-size: 2em;
+  margin-bottom: 10px;
 }
 
 canvas {
@@ -25,4 +25,28 @@ canvas {
   display: flex;
   justify-content: center;
   gap: 20px;
+}
+
+.controls {
+  margin-top: 15px;
+}
+
+.controls button {
+  margin: 5px;
+  padding: 10px 15px;
+  font-size: 1.2em;
+  background-color: #333;
+  color: #fff;
+  border: 1px solid #555;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.controls button:hover {
+  background-color: #555;
+}
+
+.wall-toggle {
+  margin-top: 15px;
+  font-size: 1em;
 }
