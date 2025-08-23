@@ -13,7 +13,6 @@
   const highScoreEl = document.getElementById('highScore');
   const levelEl = document.getElementById('level');
   const wallsStateEl = document.getElementById('wallsState');
-  const startBtn = document.getElementById('startBtn');
   const overlay = document.getElementById('overlay');
   const centerBtn = document.getElementById('btnCenter');
   const centerIcon = document.getElementById('centerIcon');
@@ -580,8 +579,10 @@ const hitSound = new Audio("sounds/hit.mp3");
 
   // Idle draw (shows board before start)
   drawFrame(false);
-  startBtn.click();
+  overlay.style.display = 'none';
+restart();
 })();
+
 
 
 
