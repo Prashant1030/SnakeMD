@@ -575,16 +575,14 @@ const hitSound = new Audio("sounds/hit.mp3");
   // Idle draw (shows board before start)
   drawFrame(false);
   
-window.addEventListener('load', () => {
-  setTimeout(() => {
-    overlay.style.display = 'none';
-    restart();
-  }, 1000); // 1 second delay
+const startBtn = document.getElementById('startBtn');
+startBtn.addEventListener('click', () => {
+  overlay.style.display = 'none';
+  restart();
 });
 
-
-  
 })();
+
 
 
 
