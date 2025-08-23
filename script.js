@@ -147,12 +147,12 @@ const hitSound = new Audio("sounds/hit.mp3");
       x = Math.floor(Math.random() * COLS);
       y = Math.floor(Math.random() * ROWS);
     } while (occupied.has(`${x},${y}`));
-    spawnSound.play();
     return { x, y };
   }
 
   function spawnBonus() {
     bonus = { ...placeFood(food), expiresAt: performance.now() + 4000 };
+    spawnSound.play();
     showBonusTimer();
   }
 
@@ -582,6 +582,7 @@ const hitSound = new Audio("sounds/hit.mp3");
   drawFrame(false);
   startBtn.click();
 })();
+
 
 
 
