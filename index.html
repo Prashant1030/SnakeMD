@@ -2,95 +2,32 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>SnakeMD</title>
-  <style>
-    body {
-      font-family: 'Segoe UI', sans-serif;
-      text-align: center;
-      background: #e0f7fa;
-      margin: 0;
-      padding: 20px;
-    }
-
-    canvas {
-      border: 2px solid #333;
-      background: #f0f0f0;
-      margin-top: 10px;
-    }
-
-    #scoreboard {
-      margin-bottom: 10px;
-      font-size: 1.2em;
-    }
-
-    #wallToggle {
-      margin-top: 10px;
-      padding: 8px 16px;
-      font-size: 1em;
-    }
-
-    #controls {
-      position: relative;
-      width: 200px;
-      height: 200px;
-      margin: 30px auto;
-    }
-
-    #controls button {
-      position: absolute;
-      border-radius: 50%;
-      width: 60px;
-      height: 60px;
-      font-size: 1.5em;
-      border: none;
-      background-color: #00796b;
-      color: white;
-      box-shadow: 0 4px 6px rgba(0,0,0,0.2);
-      cursor: pointer;
-    }
-
-    #up    { top: 0; left: 70px; }
-    #down  { bottom: 0; left: 70px; }
-    #left  { top: 70px; left: 0; }
-    #right { top: 70px; right: 0; }
-    #pausePlay {
-      top: 70px;
-      left: 70px;
-      background-color: #d32f2f;
-    }
-
-    #controls button:hover {
-      background-color: #004d40;
-    }
-  </style>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <h1>🐍 SnakeMD</h1>
+  <h1> SnakeMD</h1>
 
-  <div id="scoreboard">
-    <div id="score">Score: 0</div>
-    <div id="highScore">High Score: 0</div>
+  <div class="scoreboard">
+    <div>Score: <span id="score">0</span></div>
+    <div>High Score: <span id="highScore">0</span></div>
+    <div>Wall: <span id="wallStatus">ON</span></div>
   </div>
 
-  <canvas id="gameCanvas"></canvas>
-<button id="wallToggle">Wall: ON</button>
+  <canvas id="gameCanvas" width="400" height="400"></canvas>
 
-  <canvas id="gameCanvas"></canvas>
-  
-<div id="controls">
-  <button id="up">↑</button>
-  <button id="left">←</button>
-  <button id="pausePlay">⏸</button>
-  <button id="right">→</button>
-  <button id="down">↓</button>
-  <button id="wallToggle">Wall: ON</button>
-</div>
+  <div id="controls">
+    <button id="up">↑</button>
+    <button id="left">←</button>
+    <button id="pausePlay">⏸</button>
+    <button id="right">→</button>
+    <button id="down">↓</button>
+    <button id="wallToggle">Wall: ON</button>
+  </div>
 
+  <audio id="hitSound" src="hit.mp3" preload="auto"></audio>
 
   <script src="script.js"></script>
 </body>
 </html>
-
-
-
