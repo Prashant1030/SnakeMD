@@ -579,13 +579,9 @@ const startBtn = document.getElementById('startBtn');
 startBtn.addEventListener('click', () => {
   overlay.style.display = 'none';
   restart();
-
-  setTimeout(() => {
-  overlay.style.display = 'none';
-  restart();
-}, 2000);
   
 });
+
 
 
 
