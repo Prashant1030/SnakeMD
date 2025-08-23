@@ -2,17 +2,30 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Snake Game</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Snake Evolution</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <h1>🐍 Snake Game</h1>
-  <div class="scoreboard">
-    <span id="score">Score: 0</span>
-    <span id="highscore">High Score: 0</span>
+  <h1>🐍 Snake Evolution</h1>
+
+  <div class="topbar">
+    <div class="scoreboard">
+      <span id="score">Score: 0</span>
+      <span id="highscore">High Score: 0</span>
+    </div>
+    <button id="toggleWall" class="toggle">Wall: ON</button>
   </div>
-  <canvas id="gameCanvas" width="400" height="400"></canvas>
+
+  <canvas id="gameCanvas" width="480" height="480" aria-label="Snake Game"></canvas>
+
+  <div class="pad" aria-label="Game Controls">
+    <button class="btn dir up" data-dir="UP" aria-label="Up">▲</button>
+    <button class="btn dir left" data-dir="LEFT" aria-label="Left">◀</button>
+    <button id="pausePlay" class="btn center" aria-label="Pause/Play">⏸</button>
+    <button class="btn dir right" data-dir="RIGHT" aria-label="Right">▶</button>
+    <button class="btn dir down" data-dir="DOWN" aria-label="Down">▼</button>
+  </div>
 
   <audio id="eatSound" src="sounds/eat.mp3"></audio>
   <audio id="hitSound" src="sounds/hit.mp3"></audio>
