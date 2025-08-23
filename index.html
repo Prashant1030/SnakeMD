@@ -12,25 +12,56 @@
       margin: 0;
       padding: 20px;
     }
+
     canvas {
       border: 2px solid #333;
       background: #f0f0f0;
       margin-top: 10px;
     }
+
     #scoreboard {
       margin-bottom: 10px;
       font-size: 1.2em;
     }
-    #controls button {
-      font-size: 1.5em;
-      margin: 5px;
-      padding: 10px;
-      width: 60px;
-    }
+
     #wallToggle {
       margin-top: 10px;
       padding: 8px 16px;
       font-size: 1em;
+    }
+
+    #controls {
+      position: relative;
+      width: 200px;
+      height: 200px;
+      margin: 30px auto;
+    }
+
+    #controls button {
+      position: absolute;
+      border-radius: 50%;
+      width: 60px;
+      height: 60px;
+      font-size: 1.5em;
+      border: none;
+      background-color: #00796b;
+      color: white;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+      cursor: pointer;
+    }
+
+    #up    { top: 0; left: 70px; }
+    #down  { bottom: 0; left: 70px; }
+    #left  { top: 70px; left: 0; }
+    #right { top: 70px; right: 0; }
+    #pausePlay {
+      top: 70px;
+      left: 70px;
+      background-color: #d32f2f;
+    }
+
+    #controls button:hover {
+      background-color: #004d40;
     }
   </style>
 </head>
@@ -45,16 +76,11 @@
   <button id="wallToggle">Wall: ON</button>
 
   <div id="controls">
-    <div>
-      <button id="up">↑</button>
-    </div>
-    <div>
-      <button id="left">←</button>
-      <button id="right">→</button>
-    </div>
-    <div>
-      <button id="down">↓</button>
-    </div>
+    <button id="up">↑</button>
+    <button id="left">←</button>
+    <button id="pausePlay">⏸</button>
+    <button id="right">→</button>
+    <button id="down">↓</button>
   </div>
 
   <canvas id="gameCanvas"></canvas>
