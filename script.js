@@ -1,131 +1,111 @@
-// SnakeMD - Fixed & Enhanced Version
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
-const box = 20;
-const canvasSize = 400;
-canvas.width = canvasSize;
-canvas.height = canvasSize;
 
-let snake = [
-  { x: 9 * box, y: 10 * box },
-  { x: 8 * box, y: 10 * box },
-  { x: 7 * box, y: 10 * box },
-  { x: 6 * box, y: 10 * box }
-];
+const scoreEl = document.getElementById("score");
+const highScoreEl = document.getElementById("highScore");
+const wallStatusEl = document.getElementById("wallStatus");
+const wallToggleBtn = document.getElementById("wallToggle");
+const hitSound = document.getElementById("hitSound");
 
-let direction = "RIGHT";
-let food = spawnFood();
+let snake = [{ x: 10, y: 10 }];
+let direction = { x: 0, y: 0 };
+let food = { x: 5, y: 5 };
 let score = 0;
-let highScore = localStorage.getItem("highScore") || 0;
-let wallCollision = false;
+let highScore = 0;
+let wallOn = true;
+let gamePaused = false;
 
-const eatSound = new Audio("sounds/eat.mp3");
-const dieSound = new Audio("sounds/die.mp3");
+const gridSize = 20;
+const tileCount = canvas.width / gridSize;
 
-document.addEventListener("keydown", changeDirection);
-document.getElementById("wallToggle").addEventListener("click", () => {
-  wallCollision = !wallCollision;
-  document.getElementById("wallToggle").textContent = wallCollision ? "Wall: ON" : "Wall: OFF";
-});
+function drawGame() {
+  if (gamePaused) return;
 
-["up", "down", "left", "right"].forEach(dir => {
-  document.getElementById(dir).addEventListener("click", () => changeDirection({ key: dir.toUpperCase() }));
-});
-
-function changeDirection(e) {
-  const key = e.key || e;
-  if (key === "ArrowLeft" || key === "LEFT" && direction !== "RIGHT") direction = "LEFT";
-  else if (key === "ArrowUp" || key === "UP" && direction !== "DOWN") direction = "UP";
-  else if (key === "ArrowRight" || key === "RIGHT" && direction !== "LEFT") direction = "RIGHT";
-  else if (key === "ArrowDown" || key === "DOWN" && direction !== "UP") direction = "DOWN";
-}
-
-function spawnFood() {
-  return {
-    x: Math.floor(Math.random() * canvas.width / box) * box,
-    y: Math.floor(Math.random() * canvas.height / box) * box
-  };
-}
-
-function draw() {
-  ctx.fillStyle = "#f0f0f0";
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-  // Draw food
-  ctx.fillStyle = "red";
-  ctx.fillRect(food.x, food.y, box, box);
-
-  // Draw snake
-  snake.forEach((segment, i) => {
-    ctx.fillStyle = i === 0 ? "green" : "lime";
-    ctx.fillRect(segment.x, segment.y, box, box);
-    if (i === 0) drawMouth(segment); // Head animation
-  });
-
-  // Move snake
-  let head = { ...snake[0] };
-  if (direction === "LEFT") head.x -= box;
-  if (direction === "UP") head.y -= box;
-  if (direction === "RIGHT") head.x += box;
-  if (direction === "DOWN") head.y += box;
-
-  // Wall collision
-  if (wallCollision && (head.x < 0 || head.x >= canvas.width || head.y < 0 || head.y >= canvas.height)) {
-    dieSound.play();
+  moveSnake();
+  if (checkCollision()) {
+    hitSound.play();
     resetGame();
     return;
   }
 
-  // Wrap around
-  if (!wallCollision) {
-    head.x = (head.x + canvas.width) % canvas.width;
-    head.y = (head.y + canvas.height) % canvas.height;
-  }
-
-  // Self collision
-  if (snake.some(seg => seg.x === head.x && seg.y === head.y)) {
-    dieSound.play();
-    resetGame();
-    return;
-  }
-
-  snake.unshift(head);
-
-  // Eat food
-  if (head.x === food.x && head.y === food.y) {
+  if (snake[0].x === food.x && snake[0].y === food.y) {
+    snake.push({ ...snake[snake.length - 1] });
     score++;
-    eatSound.play();
-    food = spawnFood();
+    scoreEl.textContent = score;
     if (score > highScore) {
       highScore = score;
-      localStorage.setItem("highScore", highScore);
+      highScoreEl.textContent = highScore;
     }
-  } else {
-    snake.pop();
+    placeFood();
   }
 
-  updateScore();
+  ctx.fillStyle = "#000";
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  ctx.fillStyle = "#ff0000";
+  ctx.fillRect(food.x * gridSize, food.y * gridSize, gridSize, gridSize);
+
+  ctx.fillStyle = "#00ff00";
+  snake.forEach(segment => {
+    ctx.fillRect(segment.x * gridSize, segment.y * gridSize, gridSize, gridSize);
+  });
 }
 
-function drawMouth(head) {
-  ctx.fillStyle = "black";
-  ctx.beginPath();
-  ctx.arc(head.x + box / 2, head.y + box / 2, box / 4, 0, Math.PI * 2);
-  ctx.fill();
+function moveSnake() {
+  const head = { x: snake[0].x + direction.x, y: snake[0].y + direction.y };
+  snake.unshift(head);
+  snake.pop();
 }
 
-function updateScore() {
-  document.getElementById("score").textContent = `Score: ${score}`;
-  document.getElementById("highScore").textContent = `High Score: ${highScore}`;
+function checkCollision() {
+  const head = snake[0];
+
+  if (wallOn && (head.x < 0 || head.x >= tileCount || head.y < 0 || head.y >= tileCount)) {
+    return true;
+  }
+
+  if (!wallOn) {
+    head.x = (head.x + tileCount) % tileCount;
+    head.y = (head.y + tileCount) % tileCount;
+  }
+
+  for (let i = 1; i < snake.length; i++) {
+    if (snake[i].x === head.x && snake[i].y === head.y) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+function placeFood() {
+  food.x = Math.floor(Math.random() * tileCount);
+  food.y = Math.floor(Math.random() * tileCount);
 }
 
 function resetGame() {
-  snake = [{ x: 9 * box, y: 10 * box }];
-  direction = "RIGHT";
+  snake = [{ x: 10, y: 10 }];
+  direction = { x: 0, y: 0 };
   score = 0;
-  food = spawnFood();
+  scoreEl.textContent = score;
+  placeFood();
 }
 
-setInterval(draw, 100);
+document.getElementById("up").onclick = () => direction = { x: 0, y: -1 };
+document.getElementById("down").onclick = () => direction = { x: 0, y: 1 };
+document.getElementById("left").onclick = () => direction = { x: -1, y: 0 };
+document.getElementById("right").onclick = () => direction = { x: 1, y: 0 };
 
+document.getElementById("pausePlay").onclick = () => {
+  gamePaused = !gamePaused;
+  document.getElementById("pausePlay").textContent = gamePaused ? "▶️" : "⏸";
+};
 
+wallToggleBtn.onclick = () => {
+  wallOn = !wallOn;
+  wallStatusEl.textContent = wallOn ? "ON" : "OFF";
+  wallToggleBtn.textContent = `Wall: ${wallOn ? "ON" : "OFF"}`;
+};
+
+placeFood();
+setInterval(drawGame, 150);
