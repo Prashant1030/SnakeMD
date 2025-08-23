@@ -1,55 +1,29 @@
 body {
-  font-family: sans-serif;
   text-align: center;
+  font-family: 'Segoe UI', sans-serif;
   background-color: #f0f0f0;
-  margin: 0;
-  padding: 20px;
+}
+
+#scoreboard {
+  margin: 10px;
+  font-size: 18px;
+  font-weight: bold;
 }
 
 canvas {
-  background-color: #222;
-  border: 2px solid #444;
+  border: 3px solid #333;
+  background-color: #fff;
   display: block;
-  margin: 10px auto;
+  margin: 0 auto;
 }
 
-.scoreboard {
-  font-size: 18px;
-  margin-bottom: 10px;
+#messageBox {
+  margin-top: 20px;
+  font-size: 20px;
+  color: red;
+  font-weight: bold;
 }
 
-.controls {
-  position: relative;
-  width: 200px;
-  height: 200px;
-  margin: 30px auto;
-}
-
-button {
-  font-size: 24px;
-  width: 50px;
-  height: 50px;
-  border-radius: 50%;
-  border: none;
-  color: white;
-  background-color: #4caf50;
-  cursor: pointer;
-  position: absolute;
-}
-
-#centerBtn {
-  background-color: #2196f3;
-  top: 75px;
-  left: 75px;
-}
-
-.controls button:nth-child(1) { top: 0; left: 75px; }     /* Up */
-.controls button:nth-child(2) { top: 75px; left: 0; }     /* Left */
-.controls button:nth-child(3) { top: 75px; left: 75px; }  /* Center */
-.controls button:nth-child(4) { top: 75px; right: 0; }    /* Right */
-.controls button:nth-child(5) { bottom: 0; left: 75px; }  /* Down */
-
-.options {
-  margin-top: 10px;
-  font-size: 16px;
+.hidden {
+  display: none;
 }
