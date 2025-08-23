@@ -7,25 +7,15 @@
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <h1>🐍 Snake Game</h1>
-  <div class="scoreboard">
-    <span>Score: <span id="score">0</span></span>
-    <span>High Score: <span id="highScore">0</span></span>
+  <h1>🐍 Prashant's Snake Game</h1>
+  <div id="scoreboard">
+    <span id="score">Score: 0</span>
+    <span id="highscore">High Score: 0</span>
   </div>
   <canvas id="gameCanvas" width="400" height="400"></canvas>
-  <div class="controls">
-    <button onclick="setDirection('up')">⬆️</button>
-    <button onclick="setDirection('left')">⬅️</button>
-    <button onclick="togglePause()" id="centerBtn">⏸️</button>
-    <button onclick="setDirection('right')">➡️</button>
-    <button onclick="setDirection('down')">⬇️</button>
-  </div>
-  <div class="options">
-    <label>
-      <input type="checkbox" id="wallToggle" onchange="toggleWall()" />
-      Wall Collision
-    </label>
-  </div>
+  <div id="messageBox" class="hidden">Game Over! Press any key to restart.</div>
+  <audio id="eatSound" src="eat.mp3"></audio>
+  <audio id="hitSound" src="hit.mp3"></audio>
   <script src="script.js"></script>
 </body>
 </html>
