@@ -1,49 +1,95 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>SnakeMD</title>
+  <meta charset="utf-8" />
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1, viewport-fit=cover"
+  />
+  <title>Snake — Levels, Bonus Food, and Mobile Controls</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
   <header class="hud">
     <div class="hud-left">
-      <div class="stat">
-        <span class="label">Score</span>
-        <span id="score">0</span>
-      </div>
-      <div class="stat">
-        <span class="label">High</span>
-        <span id="highScore">0</span>
-      </div>
+      <div class="brand">SNAKE</div>
+      <div class="stat"><span class="label">Score</span><span id="score">0</span></div>
+      <div class="stat"><span class="label">High</span><span id="highScore">0</span></div>
+      <div class="stat"><span class="label">Level</span><span id="level">1</span></div>
     </div>
-
     <div class="hud-right">
-      <button id="wallToggle" class="icon-btn" aria-pressed="true" aria-label="Toggle walls">
-        Wall: ON
-      </button>
-      <button id="themeToggle" class="icon-btn" aria-label="Toggle theme">
-        Theme
-      </button>
+      <button id="btnSettings" class="icon-btn" type="button" aria-haspopup="dialog" aria-controls="settingsPanel">Settings</button>
+      <button id="btnTheme" class="icon-btn" type="button" title="Toggle theme">Theme</button>
     </div>
   </header>
 
-  <main>
-    <section class="game-area">
-      <canvas id="game" width="480" height="480" aria-label="Snake game board"></canvas>
+  <main class="layout">
+    <section class="game-wrap">
+      <canvas id="game" width="560" height="560" aria-label="Snake playzone"></canvas>
+      <div id="overlay" class="overlay hidden" role="dialog" aria-modal="true" aria-labelledby="overlayTitle">
+        <div class="overlay-card">
+          <h2 id="overlayTitle">How to play</h2>
+          <ul class="howto">
+            <li><b>Goal:</b> Eat red food to grow. Avoid walls and your own body (unless walls are off).</li>
+            <li><b>Controls:</b> Arrow keys/WASD or the on-screen ring below. Center is Play/Pause.</li>
+            <li><b>Bonus:</b> Every 5 red foods spawns a green bonus worth +5 for 4 seconds.</li>
+            <li><b>Levels:</b> Every 100 points increases level and snake speed.</li>
+            <li><b>Tip:</b> The mouth opens when eating. The head faces your motion.</li>
+          </ul>
+          <button id="btnStart" class="primary">Start</button>
+        </div>
+      </div>
+
+      <div id="toast" class="toast hidden" role="status" aria-live="polite"></div>
     </section>
 
-    <section class="controls" aria-label="On-screen controls">
-      <div id="controlRing" class="control-ring">
-        <button id="btnUp" class="control-btn up" aria-label="Move up">↑</button>
-        <button id="btnLeft" class="control-btn left" aria-label="Move left">←</button>
-        <button id="btnPausePlay" class="center-btn" aria-label="Pause or play">⏸</button>
-        <button id="btnRight" class="control-btn right" aria-label="Move right">→</button>
-        <button id="btnDown" class="control-btn down" aria-label="Move down">↓</button>
+    <section class="controls">
+      <div class="control-ring">
+        <button id="dirUp" class="control-btn up" aria-label="Up">↑</button>
+        <button id="dirLeft" class="control-btn left" aria-label="Left">←</button>
+        <button id="dirRight" class="control-btn right" aria-label="Right">→</button>
+        <button id="dirDown" class="control-btn down" aria-label="Down">↓</button>
+        <button id="btnCenter" class="center-btn" aria-label="Play or Pause">▶</button>
       </div>
     </section>
   </main>
+
+  <!-- Settings panel -->
+  <dialog id="settingsPanel" class="settings">
+    <form method="dialog" class="panel">
+      <header class="panel-head">
+        <h3>Settings</h3>
+      </header>
+
+      <div class="panel-body">
+        <label class="row">
+          <span class="row-label">Walls</span>
+          <span class="row-desc">When off, the snake wraps around edges.</span>
+          <input id="toggleWalls" type="checkbox" />
+        </label>
+
+        <label class="row">
+          <span class="row-label">Theme</span>
+          <span class="row-desc">Switch between dark and light.</span>
+          <select id="selectTheme">
+            <option value="dark">Dark</option>
+            <option value="light">Light</option>
+          </select>
+        </label>
+
+        <div class="row">
+          <span class="row-label">Levels</span>
+          <span class="row-desc">Speed increases each level. Advance every 100 points.</span>
+          <div class="readonly">Auto</div>
+        </div>
+      </div>
+
+      <footer class="panel-foot">
+        <button id="btnResetHigh" type="button">Reset High Score</button>
+        <button value="cancel">Close</button>
+      </footer>
+    </form>
+  </dialog>
 
   <script src="script.js" defer></script>
 </body>
