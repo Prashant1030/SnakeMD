@@ -6,7 +6,13 @@ const canvasSize = 400;
 canvas.width = canvasSize;
 canvas.height = canvasSize;
 
-let snake = [{ x: 9 * box, y: 10 * box }];
+let snake = [
+  { x: 9 * box, y: 10 * box },
+  { x: 8 * box, y: 10 * box },
+  { x: 7 * box, y: 10 * box },
+  { x: 6 * box, y: 10 * box }
+];
+
 let direction = "RIGHT";
 let food = spawnFood();
 let score = 0;
@@ -121,4 +127,5 @@ function resetGame() {
 }
 
 setInterval(draw, 100);
+
 
