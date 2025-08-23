@@ -2,23 +2,20 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1, viewport-fit=cover"
-  />
-  <title>Snake — Levels, Bonus Food, and Mobile Controls</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>SnakeMD — Levels, Bonus Food, Mobile Controls</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
   <header class="hud">
     <div class="hud-left">
-      <div class="brand">SNAKE</div>
+      <div class="brand">SNAKEMD</div>
       <div class="stat"><span class="label">Score</span><span id="score">0</span></div>
       <div class="stat"><span class="label">High</span><span id="highScore">0</span></div>
       <div class="stat"><span class="label">Level</span><span id="level">1</span></div>
     </div>
     <div class="hud-right">
-      <button id="btnSettings" class="icon-btn" type="button" aria-haspopup="dialog" aria-controls="settingsPanel">Settings</button>
+      <button id="btnSettings" class="icon-btn" type="button" aria-haspopup="dialog" aria-controls="settingsModal">Settings</button>
       <button id="btnTheme" class="icon-btn" type="button" title="Toggle theme">Theme</button>
     </div>
   </header>
@@ -26,41 +23,42 @@
   <main class="layout">
     <section class="game-wrap">
       <canvas id="game" width="560" height="560" aria-label="Snake playzone"></canvas>
-      <div id="overlay" class="overlay hidden" role="dialog" aria-modal="true" aria-labelledby="overlayTitle">
+
+      <!-- Intro overlay -->
+      <div id="intro" class="overlay" role="dialog" aria-modal="true" aria-labelledby="introTitle">
         <div class="overlay-card">
-          <h2 id="overlayTitle">How to play</h2>
+          <h2 id="introTitle">How to play</h2>
           <ul class="howto">
-            <li><b>Goal:</b> Eat red food to grow. Avoid walls and your own body (unless walls are off).</li>
-            <li><b>Controls:</b> Arrow keys/WASD or the on-screen ring below. Center is Play/Pause.</li>
+            <li><b>Goal:</b> Eat red food to grow. Avoid walls and your body (or wrap if walls are off).</li>
+            <li><b>Controls:</b> Arrow keys/WASD or the on-screen ring below. Center is Play/Pause/Restart.</li>
             <li><b>Bonus:</b> Every 5 red foods spawns a green bonus worth +5 for 4 seconds.</li>
-            <li><b>Levels:</b> Every 100 points increases level and snake speed.</li>
-            <li><b>Tip:</b> The mouth opens when eating. The head faces your motion.</li>
+            <li><b>Levels:</b> Each 100 points increases speed and level.</li>
+            <li><b>Heads-up:</b> Mouth faces your direction and opens when you eat.</li>
           </ul>
-          <button id="btnStart" class="primary">Start</button>
+          <button id="btnStart" class="primary" type="button">Start</button>
         </div>
       </div>
 
       <div id="toast" class="toast hidden" role="status" aria-live="polite"></div>
     </section>
 
-    <section class="controls">
+    <section class="controls" aria-label="On-screen controls">
       <div class="control-ring">
         <button id="dirUp" class="control-btn up" aria-label="Up">↑</button>
         <button id="dirLeft" class="control-btn left" aria-label="Left">←</button>
         <button id="dirRight" class="control-btn right" aria-label="Right">→</button>
         <button id="dirDown" class="control-btn down" aria-label="Down">↓</button>
-        <button id="btnCenter" class="center-btn" aria-label="Play or Pause">▶</button>
+        <button id="btnCenter" class="center-btn" aria-label="Play / Pause / Restart">▶</button>
       </div>
     </section>
   </main>
 
-  <!-- Settings panel -->
-  <dialog id="settingsPanel" class="settings">
-    <form method="dialog" class="panel">
+  <!-- Settings modal (no <dialog> to avoid browser quirks) -->
+  <div id="settingsModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="settingsTitle">
+    <div class="panel">
       <header class="panel-head">
-        <h3>Settings</h3>
+        <h3 id="settingsTitle">Settings</h3>
       </header>
-
       <div class="panel-body">
         <label class="row">
           <span class="row-label">Walls</span>
@@ -79,17 +77,16 @@
 
         <div class="row">
           <span class="row-label">Levels</span>
-          <span class="row-desc">Speed increases each level. Advance every 100 points.</span>
-          <div class="readonly">Auto</div>
+          <span class="row-desc">Advance every 100 points. Speed increases each level.</span>
+          <div class="readonly">Automatic</div>
         </div>
       </div>
-
       <footer class="panel-foot">
         <button id="btnResetHigh" type="button">Reset High Score</button>
-        <button value="cancel">Close</button>
+        <button id="btnCloseSettings" type="button">Close</button>
       </footer>
-    </form>
-  </dialog>
+    </div>
+  </div>
 
   <script src="script.js" defer></script>
 </body>
