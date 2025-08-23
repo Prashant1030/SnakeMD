@@ -51,12 +51,13 @@ canvas {
   background-color: #555;
 }
 
-.wall-toggle {
-  margin-top: 10px;
+#wallToggle {
+  margin-top: 20px;
+  padding: 8px 16px;
   font-size: 1em;
-  align: center;
-  gap: 10px;
 }
+
+
 
 
 
