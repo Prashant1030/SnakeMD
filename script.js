@@ -54,7 +54,7 @@
   let high = Number(localStorage.getItem('snake_highscore_md') || 0);
   let level = 1;
 
-  let wallsOn = true;
+  let wallsOn = false;
   let theme = document.documentElement.getAttribute('data-theme') || 'dark';
 
   let food = null;       // red
@@ -544,3 +544,4 @@
 
   init();
 })();
+
