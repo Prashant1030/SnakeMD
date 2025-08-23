@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Snake Game — Bonus Food & Levels</title>
+  <title>Snake — Levels, Bonus Food, Mobile Controls</title>
   <link rel="stylesheet" href="style.css"/>
 </head>
 <body>
@@ -18,17 +18,17 @@
   </header>
 
   <main class="game-wrap">
-    <canvas id="board" width="480" height="480"></canvas>
+    <canvas id="board" width="480" height="480" aria-label="Snake play zone"></canvas>
 
-    <section class="controls">
+    <section class="controls" aria-label="Controls">
       <div class="dpad">
-        <button class="ctrl ctrl-up" id="btn-up">▲</button>
-        <button class="ctrl ctrl-left" id="btn-left">◀</button>
-        <button class="ctrl ctrl-right" id="btn-right">▶</button>
-        <button class="ctrl ctrl-down" id="btn-down">▼</button>
-        <button class="ctrl ctrl-center" id="btn-center">⏸</button>
+        <button class="ctrl ctrl-up" id="btn-up" aria-label="Move up">▲</button>
+        <button class="ctrl ctrl-left" id="btn-left" aria-label="Move left">◀</button>
+        <button class="ctrl ctrl-right" id="btn-right" aria-label="Move right">▶</button>
+        <button class="ctrl ctrl-down" id="btn-down" aria-label="Move down">▼</button>
+        <button class="ctrl ctrl-center" id="btn-center" aria-label="Pause/Play/Restart">⏸</button>
       </div>
-      <p class="ctrl-hint">Arrow keys/WASD or tap buttons. Center = pause/play, restart after Game Over.</p>
+      <p class="ctrl-hint">Arrow keys/WASD or tap buttons. Center pauses/plays and restarts after game over.</p>
     </section>
   </main>
 
@@ -36,14 +36,14 @@
     <div class="panel-card">
       <div class="panel-head">
         <h2>Settings</h2>
-        <button id="btn-close-settings" class="icon-btn">✖</button>
+        <button id="btn-close-settings" class="icon-btn" aria-label="Close settings">✖</button>
       </div>
       <div class="panel-body">
         <div class="setting">
           <label for="toggle-walls"><strong>Walls:</strong></label>
           <select id="toggle-walls">
-            <option value="on">Walls On</option>
-            <option value="off">Walls Off (wrap)</option>
+            <option value="on">Keep walls (hit = game over)</option>
+            <option value="off">No walls (wrap-around)</option>
           </select>
         </div>
 
@@ -56,8 +56,8 @@
         </div>
 
         <div class="setting">
-          <strong>Levels:</strong>
-          <p class="small">Speed increases every 50 points.</p>
+          <div><strong>Levels & Speed:</strong></div>
+          <p class="small">Levels increase automatically every 50 points. Higher level = faster snake.</p>
         </div>
       </div>
     </div>
