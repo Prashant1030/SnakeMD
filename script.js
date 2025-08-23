@@ -14,25 +14,23 @@ let food = {
 const eatSound = new Audio("eat.mp3");
 const hitSound = new Audio("hit.mp3");
 
-document.addEventListener("keydown", changeDirection);
-
-function changeDirection(e) {
+document.addEventListener("keydown", e => {
   if (e.key === "ArrowLeft" && direction !== "RIGHT") direction = "LEFT";
   else if (e.key === "ArrowUp" && direction !== "DOWN") direction = "UP";
   else if (e.key === "ArrowRight" && direction !== "LEFT") direction = "RIGHT";
   else if (e.key === "ArrowDown" && direction !== "UP") direction = "DOWN";
-}
+});
 
 function draw() {
-  ctx.fillStyle = "black";
+  ctx.fillStyle = "#000";
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-  for (let i = 0; i < snake.length; i++) {
-    ctx.fillStyle = i === 0 ? "lime" : "green";
-    ctx.fillRect(snake[i].x, snake[i].y, box, box);
-    ctx.strokeStyle = "black";
-    ctx.strokeRect(snake[i].x, snake[i].y, box, box);
-  }
+  snake.forEach((segment, i) => {
+    ctx.fillStyle = i === 0 ? "#00ff00" : "#00aa00";
+    ctx.fillRect(segment.x, segment.y, box, box);
+    ctx.strokeStyle = "#000";
+    ctx.strokeRect(segment.x, segment.y, box, box);
+  });
 
   ctx.fillStyle = "red";
   ctx.fillRect(food.x, food.y, box, box);
@@ -61,7 +59,7 @@ function draw() {
   if (
     headX < 0 || headX >= canvas.width ||
     headY < 0 || headY >= canvas.height ||
-    collision(newHead, snake)
+    snake.some(segment => segment.x === newHead.x && segment.y === newHead.y)
   ) {
     hitSound.play();
     score = 0;
@@ -71,16 +69,12 @@ function draw() {
 
   snake.unshift(newHead);
 
-  document.getElementById("scoreBox").innerText = "Score: " + score;
+  document.getElementById("scoreBox").textContent = "Score: " + score;
   if (score > highScore) {
     highScore = score;
     localStorage.setItem("highScore", highScore);
   }
-  document.getElementById("highScoreBox").innerText = "High Score: " + highScore;
-}
-
-function collision(head, array) {
-  return array.some(segment => segment.x === head.x && segment.y === head.y);
+  document.getElementById("highScoreBox").textContent = "High Score: " + highScore;
 }
 
 setInterval(draw, 100);
