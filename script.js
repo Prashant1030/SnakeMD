@@ -83,10 +83,10 @@
 
   const speedForLevel = lv => LEVEL_SPEEDS_MS[Math.min(LEVEL_SPEEDS_MS.length - 1, lv - 1)];
 
- function resizeForDPR() {
+function resizeForDPR() {
   const dpr = window.devicePixelRatio || 1;
-  const logicalW = COLS * cellSize;
-  const logicalH = ROWS * cellSize;
+  const logicalW = COLS * baseCellSize;
+  const logicalH = ROWS * baseCellSize;
 
   canvas.style.width = logicalW + 'px';
   canvas.style.height = logicalH + 'px';
@@ -100,6 +100,7 @@
 
   draw();
 }
+
 
 
   // ----- Food placement -----
@@ -570,6 +571,7 @@ console.log('Snake head:', snake[0]);
 
   init();
 })();
+
 
 
 
