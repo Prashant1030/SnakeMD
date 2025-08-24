@@ -105,6 +105,13 @@ function resizeForDPR() {
   draw();
 }
 
+function toggleFullscreen() {
+  if (!document.fullscreenElement) {
+    document.documentElement.requestFullscreen();
+  } else {
+    document.exitFullscreen();
+  }
+}
 
   // ----- Food placement -----
   function inSnake(p) { return snake.some(s => s.x === p.x && s.y === p.y); }
@@ -614,6 +621,7 @@ ctx.fillRect(0, 0, canvas.width, canvas.height);
 
   init();
 })();
+
 
 
 
