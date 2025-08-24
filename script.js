@@ -547,30 +547,32 @@ console.log('Snake head:', snake[0]);
     selTheme.value = theme;
   }
 
-  function init() {
-    initSettings();
-    resetGame(true);      // fresh state and spawn first food
-    resizeForDPR();       // crisp canvas
-    startLoop();          // auto-start movement
-    updateHUD();
+ function init() {
+  initSettings();         // Apply theme and wall settings
+  resetGame(true);        // Reset game state and spawn first food
+  running = true;         // Ensure game loop runs
+  resizeForDPR();         // Adjust canvas for device pixel ratio
+  startLoop();            // Begin movement and drawing
+  updateHUD();            // Update score, level, etc.
 
-    window.addEventListener('resize', resizeForDPR);
+  // Unlock audio on first interaction (for mobile autoplay policies)
+  const unlock = () => {
+    [sEat, sSpawn, sHit].forEach(a => {
+      a.muted = false;
+      a.play().then(() => a.pause()).catch(() => {});
+    });
+    window.removeEventListener('pointerdown', unlock);
+    window.removeEventListener('keydown', unlock);
+  };
 
-    // Unlock audio on first interaction (mobile autoplay policies)
-    const unlock = () => {
-      [sEat, sSpawn, sHit].forEach(a => {
-        a.muted = false;
-        a.play().then(() => a.pause()).catch(() => {});
-      });
-      window.removeEventListener('pointerdown', unlock);
-      window.removeEventListener('keydown', unlock);
-    };
-    window.addEventListener('pointerdown', unlock, { passive: true });
-    window.addEventListener('keydown', unlock, { passive: true });
-  }
+  window.addEventListener('pointerdown', unlock, { passive: true });
+  window.addEventListener('keydown', unlock, { passive: true });
+  window.addEventListener('resize', resizeForDPR);
+}
 
   init();
 })();
+
 
 
 
