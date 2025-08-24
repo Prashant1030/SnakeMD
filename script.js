@@ -1,6 +1,6 @@
 (() => {
   // ----- Config -----
-  const COLS = 30, ROWS = 30;
+  const COLS = 22, ROWS = 30;
 
   // Levels: lower ms = faster; level increases every 50 points
   const LEVEL_SPEEDS_MS = [150, 130, 112, 96, 84, 74, 66, 60, 54];
@@ -38,7 +38,9 @@
   const btnCenter = document.getElementById('btn-center');
 
   // ----- Sizing -----
-  let cellSize;
+  let cellSize = Math.floor(canvas.width / COLS);
+  canvas.width = cellSize * COLS;
+  canvas.height = cellSize * ROWS;
 
   // ----- State -----
   let snake = []; // head at index 0
@@ -81,32 +83,17 @@
 
   const speedForLevel = lv => LEVEL_SPEEDS_MS[Math.min(LEVEL_SPEEDS_MS.length - 1, lv - 1)];
 
-function resizeForDPR() {
-  const dpr = window.devicePixelRatio || 1;
-
-  // Determine visual size based on screen or fixed value
-  const visualSize = Math.min(window.innerWidth, 560); // or use 480 if you prefer
-  cellSize = Math.floor(visualSize / COLS);
-
-  const logicalW = cellSize * COLS;
-  const logicalH = cellSize * ROWS;
-
-  canvas.style.width = logicalW + 'px';
-  canvas.style.height = logicalH + 'px';
-  canvas.width = Math.floor(logicalW * dpr);
-  canvas.height = Math.floor(logicalH * dpr);
-  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-
-  draw();
-}
-
-function toggleFullscreen() {
-  if (!document.fullscreenElement) {
-    document.documentElement.requestFullscreen();
-  } else {
-    document.exitFullscreen();
+  function resizeForDPR() {
+    const dpr = window.devicePixelRatio || 1;
+    const logicalW = cellSize * COLS;
+    const logicalH = cellSize * ROWS;
+    canvas.style.width = logicalW + 'px';
+    canvas.style.height = logicalH + 'px';
+    canvas.width = Math.floor(logicalW * dpr);
+    canvas.height = Math.floor(logicalH * dpr);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    draw();
   }
-}
 
   // ----- Food placement -----
   function inSnake(p) { return snake.some(s => s.x === p.x && s.y === p.y); }
@@ -197,20 +184,11 @@ function toggleFullscreen() {
     else if (k === ' ' || k === 'enter') togglePauseOrRestart();
   }, { passive: false });
 
-function bindControl(btn, dx, dy) {
-  const handler = () => setDirection(dx, dy);
-  btn.addEventListener('click', handler);
-  btn.addEventListener('touchstart', handler, { passive: true });
-}
-
-bindControl(btnUp, 0, -1);
-bindControl(btnDown, 0, 1);
-bindControl(btnLeft, -1, 0);
-bindControl(btnRight, 1, 0);
-
-btnCenter.addEventListener('click', togglePauseOrRestart);
-btnCenter.addEventListener('touchstart', togglePauseOrRestart, { passive: true });
-
+  btnUp.addEventListener('click', () => setDirection(0, -1));
+  btnDown.addEventListener('click', () => setDirection(0, 1));
+  btnLeft.addEventListener('click', () => setDirection(-1, 0));
+  btnRight.addEventListener('click', () => setDirection(1, 0));
+  btnCenter.addEventListener('click', togglePauseOrRestart);
 
   function togglePauseOrRestart() {
     if (gameOver) {
@@ -244,13 +222,7 @@ btnCenter.addEventListener('touchstart', togglePauseOrRestart, { passive: true }
     document.documentElement.setAttribute('data-theme', theme);
     draw();
   });
-// Restore on init
-const savedTheme = localStorage.getItem('snake_theme_md');
-if (savedTheme) {
-  theme = savedTheme;
-  document.documentElement.setAttribute('data-theme', theme);
-}
-  
+
   // ----- Game step -----
   function step() {
     // queue → active direction
@@ -342,9 +314,6 @@ if (savedTheme) {
 
     // grid
     drawGrid();
-    ctx.fillStyle = 'rgba(255,0,0,0.1)';
-ctx.fillRect(0, 0, canvas.width, canvas.height);
-
 
     // foods
     if (food) drawFood(food.x, food.y, getCSS('--food-red'));
@@ -419,48 +388,8 @@ ctx.fillRect(0, 0, canvas.width, canvas.height);
     for (let i = snake.length - 1; i >= 1; i--) {
       const seg = snake[i];
       const isTail = (i === snake.length - 1);
-     function drawSegment(seg, kind) {
-  const x = seg.x * cellSize;
-  const y = seg.y * cellSize;
-  ctx.save();
-
-  if (kind === 'tail') {
-    const dx = dir.x, dy = dir.y;
-    const cx = x + cellSize / 2;
-    const cy = y + cellSize / 2;
-    const size = cellSize * 0.4;
-
-    ctx.fillStyle = getCSS('--snake-tail');
-    ctx.beginPath();
-
-    if (dx === 1 && dy === 0) { // moving right → tail points left
-      ctx.moveTo(cx + size, cy);
-      ctx.lineTo(cx - size, cy - size);
-      ctx.lineTo(cx - size, cy + size);
-    } else if (dx === -1 && dy === 0) { // moving left → tail points right
-      ctx.moveTo(cx - size, cy);
-      ctx.lineTo(cx + size, cy - size);
-      ctx.lineTo(cx + size, cy + size);
-    } else if (dx === 0 && dy === -1) { // moving up → tail points down
-      ctx.moveTo(cx, cy - size);
-      ctx.lineTo(cx - size, cy + size);
-      ctx.lineTo(cx + size, cy + size);
-    } else { // moving down → tail points up
-      ctx.moveTo(cx, cy + size);
-      ctx.lineTo(cx - size, cy - size);
-      ctx.lineTo(cx + size, cy - size);
+      drawSegment(seg, isTail ? 'tail' : 'body');
     }
-
-    ctx.closePath();
-    ctx.fill();
-  } else {
-    ctx.fillStyle = getCSS('--snake-body');
-    roundRect(ctx, x + 2, y + 2, cellSize - 4, cellSize - 4, BODY_ROUND);
-    ctx.fill();
-  }
-
-  ctx.restore();}
-
 
     // head last so it sits on top
     drawHead();
@@ -589,7 +518,6 @@ ctx.fillRect(0, 0, canvas.width, canvas.height);
   function initSettings() {
     selWalls.value = wallsOn ? 'on' : 'off';
     selTheme.value = theme;
-    wallsOn = (selWalls.value === 'on');
   }
 
   function init() {
@@ -616,10 +544,4 @@ ctx.fillRect(0, 0, canvas.width, canvas.height);
 
   init();
 })();
-
-
-
-
-
-
 
