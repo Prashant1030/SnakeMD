@@ -86,14 +86,22 @@ box-shadow: 0 0 0 2px black, 0 0 12px rgba(0,0,0,0.3);
   margin-top: 8px; /* ?? Add this line */
 }
 /* Controls */
-.controls { margin-top: 16px; display: grid; place-items: center; }
+.controls { 
+  margin-top: 16px; 
+  display: grid; 
+  place-items: center;
+  padding-bottom: env(safe-area-inset-bottom, 16px); /* iOS safe zone */
+  max-height: calc(100vh - 100px); /* prevent overflow */
+  overflow: auto;
+}
 .dpad {
   position: relative;
-  width: 260px;
-  height: 260px;
+  width: min(260px, 90vw);
+  height: min(260px, 90vw);
   border-radius: 50%;
   background: radial-gradient(120px 120px at center, rgba(255,255,255,0.06), transparent);
 }
+
 .ctrl {
   position: absolute;
   width: 84px; height: 84px;
@@ -107,21 +115,22 @@ box-shadow: 0 0 0 2px black, 0 0 12px rgba(0,0,0,0.3);
   box-shadow: 0 6px 18px rgba(0,0,0,0.2);
 }
 
-.ctrl-up { top: 8px; left: 50%; transform: translateX(-50%); }
-.ctrl-down { bottom: 8px; left: 50%; transform: translateX(-50%); }
-.ctrl-left { left: 8px; top: 50%; transform: translateY(-50%); }
-.ctrl-right { right: 8px; top: 50%; transform: translateY(-50%); }
+
+.ctrl-up { top: 6px; left: 50%; transform: translateX(-50%); }
+.ctrl-down { bottom: 6px; left: 50%; transform: translateX(-50%); }
+.ctrl-left { left: 6%; top: 50%; transform: translateY(-50%); }
+.ctrl-right { right: 6px; top: 50%; transform: translateY(-50%); }
 
 .ctrl-center {
-  width: 40px;
-  height: 40px;
-  left: 50%;
+  width: 60px;
+  height: 60px;
+  left: 52%;
   top: 50%;
   transform: translate(-50%, -50%);
   background: var(--accent);
   color: white;
   border: none;
-  border-radius: 12px;
+  border-radius: 20px;
   font-size: 20px;
 }
 
@@ -175,4 +184,3 @@ box-shadow: 0 0 0 2px black, 0 0 12px rgba(0,0,0,0.3);
   margin: 8px 0 16px; /* Top margin reduced from 16px to 8px */
   opacity: 0.8;
 }
-
