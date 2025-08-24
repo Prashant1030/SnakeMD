@@ -1,6 +1,6 @@
 (() => {
   // ----- Config -----
-  const COLS = 22, ROWS = 30;
+  const COLS = 30, ROWS = 30;
 
   // Levels: lower ms = faster; level increases every 50 points
   const LEVEL_SPEEDS_MS = [150, 130, 112, 96, 84, 74, 66, 60, 54];
@@ -553,6 +553,7 @@ canvas.height = cellSize * ROWS;
 
   init();
 })();
+
 
 
 
