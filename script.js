@@ -84,16 +84,19 @@
   const speedForLevel = lv => LEVEL_SPEEDS_MS[Math.min(LEVEL_SPEEDS_MS.length - 1, lv - 1)];
 
   function resizeForDPR() {
-    const dpr = window.devicePixelRatio || 1;
-    const logicalW = cellSize * COLS;
-    const logicalH = cellSize * ROWS;
-    canvas.style.width = logicalW + 'px';
-    canvas.style.height = logicalH + 'px';
-    canvas.width = Math.floor(logicalW * dpr);
-    canvas.height = Math.floor(logicalH * dpr);
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    draw();
-  }
+  const dpr = window.devicePixelRatio || 1;
+  const logicalW = COLS * 16; // base cell size = 16px
+  const logicalH = ROWS * 16;
+
+  canvas.style.width = logicalW + 'px';
+  canvas.style.height = logicalH + 'px';
+  canvas.width = Math.floor(logicalW * dpr);
+  canvas.height = Math.floor(logicalH * dpr);
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+  cellSize = logicalW / COLS; // recalculate based on visual size
+  draw();
+}
 
   // ----- Food placement -----
   function inSnake(p) { return snake.some(s => s.x === p.x && s.y === p.y); }
@@ -329,6 +332,9 @@ if (savedTheme) {
 
     // grid
     drawGrid();
+    ctx.fillStyle = 'rgba(255,0,0,0.1)';
+ctx.fillRect(0, 0, canvas.width, canvas.height);
+
 
     // foods
     if (food) drawFood(food.x, food.y, getCSS('--food-red'));
@@ -600,6 +606,7 @@ if (savedTheme) {
 
   init();
 })();
+
 
 
 
