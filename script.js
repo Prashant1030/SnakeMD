@@ -83,10 +83,18 @@
 
   const speedForLevel = lv => LEVEL_SPEEDS_MS[Math.min(LEVEL_SPEEDS_MS.length - 1, lv - 1)];
 
-  function resizeForDPR() {
+function resizeForDPR() {
   const dpr = window.devicePixelRatio || 1;
-  const logicalW = COLS * 16; // base cell size = 16px
-  const logicalH = ROWS * 16;
+
+  // Determine max canvas size based on screen
+  const maxWidth = Math.min(window.innerWidth, 640);
+  const maxHeight = Math.min(window.innerHeight, 640);
+  const size = Math.min(maxWidth, maxHeight);
+
+  // Calculate cell size based on available space
+  cellSize = Math.floor(size / COLS);
+  const logicalW = cellSize * COLS;
+  const logicalH = cellSize * ROWS;
 
   canvas.style.width = logicalW + 'px';
   canvas.style.height = logicalH + 'px';
@@ -94,9 +102,9 @@
   canvas.height = Math.floor(logicalH * dpr);
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
-  cellSize = logicalW / COLS; // recalculate based on visual size
   draw();
 }
+
 
   // ----- Food placement -----
   function inSnake(p) { return snake.some(s => s.x === p.x && s.y === p.y); }
@@ -606,6 +614,7 @@ ctx.fillRect(0, 0, canvas.width, canvas.height);
 
   init();
 })();
+
 
 
 
