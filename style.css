@@ -106,7 +106,6 @@ box-shadow: 0 0 0 2px black, 0 0 12px rgba(0,0,0,0.3);
   cursor: pointer; user-select: none; touch-action: manipulation;
   box-shadow: 0 6px 18px rgba(0,0,0,0.2);
 }
-.ctrl:active { transform: translateY(1px); }
 
 .ctrl-up { top: 8px; left: 50%; transform: translateX(-50%); }
 .ctrl-down { bottom: 8px; left: 50%; transform: translateX(-50%); }
@@ -176,3 +175,4 @@ box-shadow: 0 0 0 2px black, 0 0 12px rgba(0,0,0,0.3);
   margin: 8px 0 16px; /* Top margin reduced from 16px to 8px */
   opacity: 0.8;
 }
+
