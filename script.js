@@ -1,13 +1,13 @@
 (() => {
   // ----- Config -----
- const FIXED_CELL_SIZE = 24;
+ const FIXED_CELL_SIZE = 20;
  let COLS, ROWS;
 
 
  
   // Levels: lower ms = faster; level increases every 50 points
   const LEVEL_SPEEDS_MS = [150, 130, 112, 96, 84, 74, 66, 60, 54];
-  const POINTS_PER_LEVEL = 50;
+  const POINTS_PER_LEVEL = 25;
   
   // Drawing
   const BODY_ROUND = 6;
