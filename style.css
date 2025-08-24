@@ -85,60 +85,40 @@ body {
 }
 
 /* Controls */
-.controls {
-  margin-top: 16px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 12px;
-}
-
+.controls { margin-top: 16px; display: grid; place-items: center; }
 .dpad {
-  display: grid;
-  grid-template-areas:
-    ". up ."
-    "left center right"
-    ". down .";
-  gap: 12px;
-  width: clamp(180px, 40vw, 260px);
-  height: clamp(180px, 40vw, 260px);
-  margin: auto;
+  position: relative;
+  width: 260px;
+  height: 260px;
+  border-radius: 50%;
+  background: radial-gradient(120px 120px at center, rgba(255,255,255,0.06), transparent);
 }
-
 .ctrl {
-  width: clamp(48px, 20vw, 84px);
-  height: clamp(48px, 20vw, 84px);
-  font-size: clamp(20px, 5vw, 28px);
+  position: absolute;
+  width: 84px; height: 84px;
   border-radius: 16px;
+  border: 1px solid rgba(0,0,0,0.15);
   background: var(--card);
   color: var(--fg);
-  display: grid;
-  place-items: center;
-  cursor: pointer;
-  user-select: none;
-  touch-action: manipulation;
+  font-size: 28px;
+  display: grid; place-items: center;
+  cursor: pointer; user-select: none; touch-action: manipulation;
   box-shadow: 0 6px 18px rgba(0,0,0,0.2);
-  transition: transform 0.1s ease;
 }
+.ctrl:active { transform: translateY(1px); }
 
-.ctrl:active {
-  transform: scale(0.98);
-}
+.ctrl-up { top: 8px; left: 50%; transform: translateX(-50%); }
+.ctrl-down { bottom: 8px; left: 50%; transform: translateX(-50%); }
+.ctrl-left { left: 8px; top: 50%; transform: translateY(-50%); }
+.ctrl-right { right: 8px; top: 50%; transform: translateY(-50%); }
 
-.ctrl-up    { grid-area: up; }
-.ctrl-down  { grid-area: down; }
-.ctrl-left  { grid-area: left; }
-.ctrl-right { grid-area: right; }
 .ctrl-center {
-  grid-area: center;
-  background: var(--accent);
-  color: white;
-  border: none;
-  width: clamp(48px, 18vw, 86px);
-  height: clamp(48px, 18vw, 86px);
+  width: 50px; height: 50px;
+  left: 50%; top: 50%; transform: translate(-50%,-50%);
+  background: var(--accent); color: white; border: none;
 }
 
-
+.ctrl-hint { color: var(--muted); font-size: 0.9rem; margin: 10px 0 0; text-align: center; }
 
 /* Settings panel */
 .settings-panel {
@@ -173,17 +153,4 @@ body {
   .ctrl { width: 74px; height: 74px; font-size: 24px; }
   .ctrl-center { width: 86px; height: 86px; }
 }
-
-@media (orientation: landscape) {
-  .dpad {
-    width: 60vw;
-    height: 60vw;
-  }
-}
-
-
-
-
-
-
 
