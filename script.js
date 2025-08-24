@@ -348,6 +348,9 @@ controls.addEventListener('click', (e) => {
   function drawGrid() {
     const w = COLS * cellSize, h = ROWS * cellSize;
     ctx.save();
+    ctx.fillStyle = 'magenta';
+ctx.fillRect(0, 0, 10, 10); // top-left marker
+console.log('Snake head:', snake[0]);
     ctx.strokeStyle = getCSS('--grid');
     ctx.lineWidth = 1;
     ctx.beginPath();
@@ -567,6 +570,7 @@ controls.addEventListener('click', (e) => {
 
   init();
 })();
+
 
 
 
