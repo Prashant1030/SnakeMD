@@ -222,7 +222,13 @@
     document.documentElement.setAttribute('data-theme', theme);
     draw();
   });
-
+// Restore on init
+const savedTheme = localStorage.getItem('snake_theme_md');
+if (savedTheme) {
+  theme = savedTheme;
+  document.documentElement.setAttribute('data-theme', theme);
+}
+  
   // ----- Game step -----
   function step() {
     // queue → active direction
@@ -518,6 +524,7 @@
   function initSettings() {
     selWalls.value = wallsOn ? 'on' : 'off';
     selTheme.value = theme;
+    wallsOn = (selWalls.value === 'on');
   }
 
   function init() {
@@ -544,3 +551,4 @@
 
   init();
 })();
+
