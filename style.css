@@ -174,5 +174,12 @@ body {
   .ctrl-center { width: 86px; height: 86px; }
 }
 
+@media (orientation: landscape) {
+  .dpad {
+    width: 60vw;
+    height: 60vw;
+  }
+}
+
 
 
