@@ -83,8 +83,8 @@ box-shadow: 0 0 0 2px black, 0 0 12px rgba(0,0,0,0.3);
   border-radius: 12px;
   display: block;
   box-shadow: 0 10px 30px rgba(0,0,0,0.25) inset;
-  margin-top: 8px; /* ?? Add this line */
 }
+
 /* Controls */
 .controls { margin-top: 16px; display: grid; place-items: center; }
 .dpad {
@@ -114,24 +114,9 @@ box-shadow: 0 0 0 2px black, 0 0 12px rgba(0,0,0,0.3);
 .ctrl-right { right: 8px; top: 50%; transform: translateY(-50%); }
 
 .ctrl-center {
-  width: 40px;
-  height: 40px;
-  left: 50%;
-  top: 50%;
-  transform: translate(-50%, -50%);
-  background: var(--accent);
-  color: white;
-  border: none;
-  border-radius: 12px;
-  font-size: 20px;
-}
-
-@media (max-width: 420px) {
-  .ctrl-center {
-    width: 48px;
-    height: 48px;
-    font-size: 18px;
-  }
+  width: 50px; height: 50px;
+  left: 50%; top: 50%; transform: translate(-50%,-50%);
+  background: var(--accent); color: white; border: none;
 }
 
 .ctrl-hint { color: var(--muted); font-size: 0.9rem; margin: 10px 0 0; text-align: center; }
@@ -170,9 +155,3 @@ box-shadow: 0 0 0 2px black, 0 0 12px rgba(0,0,0,0.3);
   .ctrl-center { width: 86px; height: 86px; }
 }
 
-.divider {
-  height: 2px;
-  background-color: #4b5563;
-  margin: 8px 0 16px; /* Top margin reduced from 16px to 8px */
-  opacity: 0.8;
-}
