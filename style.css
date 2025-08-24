@@ -40,6 +40,10 @@ body {
   font-family: system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji";
   color: var(--fg);
   background: var(--bg);
+  body {
+  background-color: #1a1f2b; /* or any color you want outside the playzone */
+}
+
 }
 
 .topbar {
@@ -72,11 +76,11 @@ body {
 }
 
 #board {
-  width: 480px;
-  height: 480px;
-  display: block;
+  width: 100%;
+  height: auto;
   background: var(--board-bg);
   border-radius: 12px;
+  display: block;
   box-shadow: 0 10px 30px rgba(0,0,0,0.25) inset;
 }
 
@@ -149,25 +153,5 @@ body {
   .ctrl { width: 74px; height: 74px; font-size: 24px; }
   .ctrl-center { width: 86px; height: 86px; }
 }
-.game-layout {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 16px;
-}
-
-/* Landscape layout: side-by-side */
-@media (min-width: 768px) and (orientation: landscape) {
-  .game-layout {
-    flex-direction: row;
-    justify-content: center;
-    align-items: flex-start;
-  }
-
-  .controls {
-    margin-top: 0;
-  }
-}
-
 
 
