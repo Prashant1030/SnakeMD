@@ -38,9 +38,7 @@
   const btnCenter = document.getElementById('btn-center');
 
   // ----- Sizing -----
-  let cellSize = Math.floor(canvas.width / COLS);
-  canvas.width = cellSize * COLS;
-  canvas.height = cellSize * ROWS;
+  let cellSize;
 
   // ----- State -----
   let snake = []; // head at index 0
@@ -86,13 +84,10 @@
 function resizeForDPR() {
   const dpr = window.devicePixelRatio || 1;
 
-  // Determine max canvas size based on screen
-  const maxWidth = Math.min(window.innerWidth, 640);
-  const maxHeight = Math.min(window.innerHeight, 640);
-  const size = Math.min(maxWidth, maxHeight);
+  // Determine visual size based on screen or fixed value
+  const visualSize = Math.min(window.innerWidth, 560); // or use 480 if you prefer
+  cellSize = Math.floor(visualSize / COLS);
 
-  // Calculate cell size based on available space
-  cellSize = Math.floor(size / COLS);
   const logicalW = cellSize * COLS;
   const logicalH = cellSize * ROWS;
 
@@ -621,6 +616,7 @@ ctx.fillRect(0, 0, canvas.width, canvas.height);
 
   init();
 })();
+
 
 
 
