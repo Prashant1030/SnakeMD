@@ -400,16 +400,13 @@
     const y = seg.y * cellSize;
     ctx.save();
     if (kind === 'tail') {
-      ctx.fillStyle = getCSS('--snake-tail');
-      roundRect(ctx, x+2, y+2, cellSize-4, cellSize-4, BODY_ROUND);
-      ctx.fill();
-
-      // small nub for tip
-      ctx.fillStyle = getCSS('--snake-body');
-      ctx.beginPath();
-      ctx.arc(x + cellSize/2, y + cellSize/2, cellSize*0.18, 0, Math.PI*2);
-      ctx.fill();
-    } else {
+  ctx.fillStyle = getCSS('--snake-body');
+  ctx.beginPath();
+  ctx.arc(x + cellSize/2, y + cellSize/2, cellSize * 0.18, 0, Math.PI * 2);
+  ctx.fill();
+}
+    
+    else {
       ctx.fillStyle = getCSS('--snake-body');
       roundRect(ctx, x+2, y+2, cellSize-4, cellSize-4, BODY_ROUND);
       ctx.fill();
@@ -544,4 +541,5 @@
 
   init();
 })();
+
 
