@@ -83,17 +83,24 @@
 
   const speedForLevel = lv => LEVEL_SPEEDS_MS[Math.min(LEVEL_SPEEDS_MS.length - 1, lv - 1)];
 
-  function resizeForDPR() {
-    const dpr = window.devicePixelRatio || 1;
-    const logicalW = cellSize * COLS;
-    const logicalH = cellSize * ROWS;
-    canvas.style.width = logicalW + 'px';
-    canvas.style.height = logicalH + 'px';
-    canvas.width = Math.floor(logicalW * dpr);
-    canvas.height = Math.floor(logicalH * dpr);
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    draw();
-  }
+ function resizeForDPR() {
+  const dpr = window.devicePixelRatio || 1;
+  const logicalW = COLS * cellSize;
+  const logicalH = ROWS * cellSize;
+
+  canvas.style.width = logicalW + 'px';
+  canvas.style.height = logicalH + 'px';
+  canvas.width = Math.floor(logicalW * dpr);
+  canvas.height = Math.floor(logicalH * dpr);
+
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+  // Recalculate cellSize based on actual canvas width
+  cellSize = canvas.width / COLS;
+
+  draw();
+}
+
 
   // ----- Food placement -----
   function inSnake(p) { return snake.some(s => s.x === p.x && s.y === p.y); }
@@ -560,6 +567,7 @@ controls.addEventListener('click', (e) => {
 
   init();
 })();
+
 
 
 
