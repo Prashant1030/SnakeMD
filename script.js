@@ -440,8 +440,8 @@
     // mouth (directional wedge)
     const tNow = performance.now();
     const mouthOpen = (tNow - lastEatTime) < MOUTH_OPEN_MS;
-    const mouthWidth = mouthOpen ? cellSize*0.42 : cellSize*0.2;
-    const mouthDepth = mouthOpen ? cellSize*0.54 : cellSize*0.34;
+    const mouthWidth = mouthOpen ? cellSize*0.62 : cellSize*0.2;
+    const mouthDepth = mouthOpen ? cellSize*0.68 : cellSize*0.34;
     const cx = x + cellSize/2, cy = y + cellSize/2;
 
     ctx.fillStyle = getCSS('--board-bg');
@@ -551,6 +551,7 @@
 
   init();
 })();
+
 
 
 
