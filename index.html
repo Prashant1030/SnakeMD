@@ -17,22 +17,20 @@
     <button id="btn-settings" class="icon-btn" aria-label="Settings">⚙️</button>
   </header>
 
- <main class="game-wrap">
-  <div class="game-layout">
+  <main class="game-wrap">
     <canvas id="board" width="540" height="540" aria-label="Snake board"></canvas>
+
     <section class="controls" aria-label="Directional controls">
       <div class="dpad">
-        <button id="btn-up" class="ctrl ctrl-up">▲</button>
-        <button id="btn-left" class="ctrl ctrl-left">◀</button>
-        <button id="btn-center" class="ctrl ctrl-center">▶</button>
-        <button id="btn-right" class="ctrl ctrl-right">▶</button>
-        <button id="btn-down" class="ctrl ctrl-down">▼</button>
+        <button id="btn-up" class="ctrl ctrl-up" aria-label="Up">▲</button>
+        <button id="btn-left" class="ctrl ctrl-left" aria-label="Left">◀</button>
+        <button id="btn-center" class="ctrl ctrl-center" aria-label="Play/Pause/Restart">▶</button>
+        <button id="btn-right" class="ctrl ctrl-right" aria-label="Right">▶</button>
+        <button id="btn-down" class="ctrl ctrl-down" aria-label="Down">▼</button>
       </div>
       <p class="ctrl-hint">Arrow keys/WASD or tap buttons. Center pauses/plays and restarts after game over.</p>
     </section>
-  </div>
-</main>
-
+  </main>
 
   <div class="settings-panel" id="settings-panel" aria-hidden="true">
     <div class="panel-card">
@@ -66,5 +64,3 @@
   <script src="script.js"></script>
 </body>
 </html>
-
-
