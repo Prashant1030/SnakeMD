@@ -5,7 +5,7 @@
   --card: #16181d;
   --accent: #3b82f6;
 
-  --board-bg: #0b0c10;
+  --board-bg: #08090d;
   --grid: #1f242d;
 
   --snake-head: #6ee7b7;
@@ -153,5 +153,6 @@ body {
   .ctrl { width: 74px; height: 74px; font-size: 24px; }
   .ctrl-center { width: 86px; height: 86px; }
 }
+
 
 
