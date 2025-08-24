@@ -386,10 +386,12 @@
 
     // body & tail
     for (let i = snake.length - 1; i >= 1; i--) {
-      const seg = snake[i];
-      const isTail = (i === snake.length - 1);
-      drawSegment(seg, isTail ? 'tail' : 'body');
-    }
+  const seg = snake[i];
+  let kind = 'body';
+  if (i === snake.length - 1) kind = 'tail';         // last segment
+  else if (i === snake.length - 2) kind = 'pre-tail'; // second-last
+  drawSegment(seg, kind);
+}
 
     // head last so it sits on top
     drawHead();
@@ -403,13 +405,16 @@
   ctx.save();
 
   if (kind === 'tail') {
-    // Only draw the inner nub
     ctx.fillStyle = getCSS('--snake-body');
     ctx.beginPath();
     ctx.arc(cx, cy, cellSize * 0.26, 0, Math.PI * 2);
     ctx.fill();
+  } else if (kind === 'pre-tail') {
+    ctx.fillStyle = getCSS('--snake-body');
+    ctx.beginPath();
+    ctx.arc(cx, cy, cellSize * 0.34, 0, Math.PI * 2);
+    ctx.fill();
   } else {
-    // Regular body segment
     ctx.fillStyle = getCSS('--snake-body');
     roundRect(ctx, x + 2, y + 2, cellSize - 4, cellSize - 4, BODY_ROUND);
     ctx.fill();
@@ -546,6 +551,7 @@
 
   init();
 })();
+
 
 
 
