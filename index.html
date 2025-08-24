@@ -18,8 +18,8 @@
   </header>
 
   <main class="game-wrap">
+  <div class="game-layout">
     <canvas id="board" width="480" height="480" aria-label="Snake play zone"></canvas>
-
     <section class="controls" aria-label="Controls">
       <div class="dpad">
         <button class="ctrl ctrl-up" id="btn-up" aria-label="Move up">▲</button>
@@ -30,7 +30,9 @@
       </div>
       <p class="ctrl-hint">Arrow keys/WASD or tap buttons. Center pauses/plays and restarts after game over.</p>
     </section>
-  </main>
+  </div>
+</main>
+
 
   <section class="settings-panel" id="settings-panel" aria-hidden="true">
     <div class="panel-card">
@@ -66,3 +68,4 @@
   <script src="script.js"></script>
 </body>
 </html>
+
