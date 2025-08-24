@@ -184,11 +184,20 @@
     else if (k === ' ' || k === 'enter') togglePauseOrRestart();
   }, { passive: false });
 
-  btnUp.addEventListener('click', () => setDirection(0, -1));
-  btnDown.addEventListener('click', () => setDirection(0, 1));
-  btnLeft.addEventListener('click', () => setDirection(-1, 0));
-  btnRight.addEventListener('click', () => setDirection(1, 0));
-  btnCenter.addEventListener('click', togglePauseOrRestart);
+  const controls = document.getElementById('controls');
+const centerBtn = document.getElementById('center-btn');
+
+controls.addEventListener('click', (e) => {
+  const dir = e.target.dataset.dir;
+  if (dir) {
+    if (dir === 'up') setDirection(0, -1);
+    else if (dir === 'down') setDirection(0, 1);
+    else if (dir === 'left') setDirection(-1, 0);
+    else if (dir === 'right') setDirection(1, 0);
+  } else if (e.target === centerBtn) {
+    togglePauseOrRestart();
+  }
+});
 
   function togglePauseOrRestart() {
     if (gameOver) {
@@ -551,6 +560,7 @@
 
   init();
 })();
+
 
 
 
