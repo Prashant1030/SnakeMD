@@ -406,7 +406,7 @@
     // Only draw the inner nub
     ctx.fillStyle = getCSS('--snake-body');
     ctx.beginPath();
-    ctx.arc(cx, cy, cellSize * 0.18, 0, Math.PI * 2);
+    ctx.arc(cx, cy, cellSize * 0.22, 0, Math.PI * 2);
     ctx.fill();
   } else {
     // Regular body segment
@@ -546,6 +546,7 @@
 
   init();
 })();
+
 
 
 
