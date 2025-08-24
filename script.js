@@ -184,11 +184,20 @@
     else if (k === ' ' || k === 'enter') togglePauseOrRestart();
   }, { passive: false });
 
-  btnUp.addEventListener('click', () => setDirection(0, -1));
-  btnDown.addEventListener('click', () => setDirection(0, 1));
-  btnLeft.addEventListener('click', () => setDirection(-1, 0));
-  btnRight.addEventListener('click', () => setDirection(1, 0));
-  btnCenter.addEventListener('click', togglePauseOrRestart);
+function bindControl(btn, dx, dy) {
+  const handler = () => setDirection(dx, dy);
+  btn.addEventListener('click', handler);
+  btn.addEventListener('touchstart', handler, { passive: true });
+}
+
+bindControl(btnUp, 0, -1);
+bindControl(btnDown, 0, 1);
+bindControl(btnLeft, -1, 0);
+bindControl(btnRight, 1, 0);
+
+btnCenter.addEventListener('click', togglePauseOrRestart);
+btnCenter.addEventListener('touchstart', togglePauseOrRestart, { passive: true });
+
 
   function togglePauseOrRestart() {
     if (gameOver) {
@@ -551,4 +560,5 @@ if (savedTheme) {
 
   init();
 })();
+
 
