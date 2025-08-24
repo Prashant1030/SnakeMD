@@ -181,51 +181,9 @@ body {
   }
 }
 
-.game-layout {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 24px;
-}
 
-/* Landscape layout: side-by-side */
-@media (min-width: 600px) and (orientation: landscape) {
-  .game-layout {
-    flex-direction: row;
-    justify-content: center;
-    align-items: flex-start;
-  }
 
-  #board {
-    max-width: 100%;
-    height: auto;
-  }
 
-  .controls {
-    margin-top: 0;
-  }
-}
-@media (max-width: 420px) and (orientation: portrait) {
-  .game-layout {
-    gap: 16px;
-  }
-
-  .dpad {
-    width: 200px;
-    height: 200px;
-  }
-
-  .ctrl {
-    width: 64px;
-    height: 64px;
-    font-size: 22px;
-  }
-
-  .ctrl-center {
-    width: 72px;
-    height: 72px;
-  }
-}
 
 
 
