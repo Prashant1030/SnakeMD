@@ -403,8 +403,48 @@ if (savedTheme) {
     for (let i = snake.length - 1; i >= 1; i--) {
       const seg = snake[i];
       const isTail = (i === snake.length - 1);
-      drawSegment(seg, isTail ? 'tail' : 'body');
+     function drawSegment(seg, kind) {
+  const x = seg.x * cellSize;
+  const y = seg.y * cellSize;
+  ctx.save();
+
+  if (kind === 'tail') {
+    const dx = dir.x, dy = dir.y;
+    const cx = x + cellSize / 2;
+    const cy = y + cellSize / 2;
+    const size = cellSize * 0.4;
+
+    ctx.fillStyle = getCSS('--snake-tail');
+    ctx.beginPath();
+
+    if (dx === 1 && dy === 0) { // moving right → tail points left
+      ctx.moveTo(cx + size, cy);
+      ctx.lineTo(cx - size, cy - size);
+      ctx.lineTo(cx - size, cy + size);
+    } else if (dx === -1 && dy === 0) { // moving left → tail points right
+      ctx.moveTo(cx - size, cy);
+      ctx.lineTo(cx + size, cy - size);
+      ctx.lineTo(cx + size, cy + size);
+    } else if (dx === 0 && dy === -1) { // moving up → tail points down
+      ctx.moveTo(cx, cy - size);
+      ctx.lineTo(cx - size, cy + size);
+      ctx.lineTo(cx + size, cy + size);
+    } else { // moving down → tail points up
+      ctx.moveTo(cx, cy + size);
+      ctx.lineTo(cx - size, cy - size);
+      ctx.lineTo(cx + size, cy - size);
     }
+
+    ctx.closePath();
+    ctx.fill();
+  } else {
+    ctx.fillStyle = getCSS('--snake-body');
+    roundRect(ctx, x + 2, y + 2, cellSize - 4, cellSize - 4, BODY_ROUND);
+    ctx.fill();
+  }
+
+  ctx.restore();}
+
 
     // head last so it sits on top
     drawHead();
@@ -560,5 +600,6 @@ if (savedTheme) {
 
   init();
 })();
+
 
 
