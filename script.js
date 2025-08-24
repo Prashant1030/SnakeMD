@@ -1,11 +1,14 @@
 (() => {
   // ----- Config -----
-  const COLS = 22, ROWS = 30;
+ const FIXED_CELL_SIZE = 24;
+ let COLS, ROWS;
 
+
+ 
   // Levels: lower ms = faster; level increases every 50 points
   const LEVEL_SPEEDS_MS = [150, 130, 112, 96, 84, 74, 66, 60, 54];
   const POINTS_PER_LEVEL = 50;
-
+  
   // Drawing
   const BODY_ROUND = 6;
 
@@ -41,6 +44,24 @@
   let cellSize = Math.floor(canvas.width / COLS);
   canvas.width = cellSize * COLS;
   canvas.height = cellSize * ROWS;
+ 
+  function resizeGridToFitScreen() {
+  const dpr = window.devicePixelRatio || 1;
+  const logicalW = canvas.clientWidth;
+  const logicalH = window.innerHeight * 0.6; // adjust ratio as needed
+
+  COLS = Math.floor(logicalW / FIXED_CELL_SIZE);
+  ROWS = Math.floor(logicalH / FIXED_CELL_SIZE);
+  cellSize = FIXED_CELL_SIZE;
+
+  canvas.style.width = (COLS * cellSize) + 'px';
+  canvas.style.height = (ROWS * cellSize) + 'px';
+  canvas.width = Math.floor(COLS * cellSize * dpr);
+  canvas.height = Math.floor(ROWS * cellSize * dpr);
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+  draw();
+}
 
   // ----- State -----
   let snake = []; // head at index 0
@@ -84,16 +105,19 @@
   const speedForLevel = lv => LEVEL_SPEEDS_MS[Math.min(LEVEL_SPEEDS_MS.length - 1, lv - 1)];
 
   function resizeForDPR() {
-    const dpr = window.devicePixelRatio || 1;
-    const logicalW = cellSize * COLS;
-    const logicalH = cellSize * ROWS;
-    canvas.style.width = logicalW + 'px';
-    canvas.style.height = logicalH + 'px';
-    canvas.width = Math.floor(logicalW * dpr);
-    canvas.height = Math.floor(logicalH * dpr);
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    draw();
-  }
+  const dpr = window.devicePixelRatio || 1;
+  const logicalW = canvas.clientWidth;
+  const logicalH = logicalW * (ROWS / COLS); // maintain aspect ratio
+
+  cellSize = Math.floor(logicalW / COLS); // 👈 recalculate cell size
+  canvas.style.width = logicalW + 'px';
+  canvas.style.height = logicalH + 'px';
+  canvas.width = Math.floor(logicalW * dpr);
+  canvas.height = Math.floor(logicalH * dpr);
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  draw();
+}
+
 
   // ----- Food placement -----
   function inSnake(p) { return snake.some(s => s.x === p.x && s.y === p.y); }
@@ -523,6 +547,8 @@
   }
 
   function init() {
+    resizeGridToFitScreen();
+
     initSettings();
     resetGame(true);      // fresh state and spawn first food
     resizeForDPR();       // crisp canvas
@@ -546,6 +572,4 @@
 
   init();
 })();
-
-
 
