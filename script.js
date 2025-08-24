@@ -45,6 +45,7 @@
   canvas.width = cellSize * COLS;
   canvas.height = cellSize * ROWS;
  
+
   function resizeGridToFitScreen() {
   const dpr = window.devicePixelRatio || 1;
   const logicalW = canvas.clientWidth;
@@ -99,7 +100,8 @@
     scoreEl.textContent = String(score);
     highEl.textContent = String(high);
     levelEl.textContent = String(level);
-    btnCenter.textContent = gameOver ? '⟲' : (running ? '⏸' : '▶');
+    btnCenter.textContent = '🔄';
+
   }
 
   const speedForLevel = lv => LEVEL_SPEEDS_MS[Math.min(LEVEL_SPEEDS_MS.length - 1, lv - 1)];
@@ -214,16 +216,10 @@
   btnRight.addEventListener('click', () => setDirection(1, 0));
   btnCenter.addEventListener('click', togglePauseOrRestart);
 
-  function togglePauseOrRestart() {
-    if (gameOver) {
-      resetGame(true);
-      startLoop();
-      return;
-    }
-    running = !running;
-    if (running) startLoop(); else stopLoop();
-    updateHUD();
-  }
+ function togglePauseOrRestart() {
+  resetGame(true);
+  startLoop();
+}
 
   // Settings UI
   settingsBtn.addEventListener('click', () => {
