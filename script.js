@@ -83,25 +83,17 @@
 
   const speedForLevel = lv => LEVEL_SPEEDS_MS[Math.min(LEVEL_SPEEDS_MS.length - 1, lv - 1)];
 
-function resizeForDPR() {
-  const dpr = window.devicePixelRatio || 1;
-  const logicalW = COLS * baseCellSize;
-  const logicalH = ROWS * baseCellSize;
-
-  canvas.style.width = logicalW + 'px';
-  canvas.style.height = logicalH + 'px';
-  canvas.width = Math.floor(logicalW * dpr);
-  canvas.height = Math.floor(logicalH * dpr);
-
-  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-
-  // Recalculate cellSize based on actual canvas width
-  cellSize = canvas.width / COLS;
-
-  draw();
-}
-
-
+  function resizeForDPR() {
+    const dpr = window.devicePixelRatio || 1;
+    const logicalW = cellSize * COLS;
+    const logicalH = cellSize * ROWS;
+    canvas.style.width = logicalW + 'px';
+    canvas.style.height = logicalH + 'px';
+    canvas.width = Math.floor(logicalW * dpr);
+    canvas.height = Math.floor(logicalH * dpr);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    draw();
+  }
 
   // ----- Food placement -----
   function inSnake(p) { return snake.some(s => s.x === p.x && s.y === p.y); }
@@ -192,20 +184,11 @@ function resizeForDPR() {
     else if (k === ' ' || k === 'enter') togglePauseOrRestart();
   }, { passive: false });
 
-  const controls = document.getElementById('controls');
-const centerBtn = document.getElementById('center-btn');
-
-controls.addEventListener('click', (e) => {
-  const dir = e.target.dataset.dir;
-  if (dir) {
-    if (dir === 'up') setDirection(0, -1);
-    else if (dir === 'down') setDirection(0, 1);
-    else if (dir === 'left') setDirection(-1, 0);
-    else if (dir === 'right') setDirection(1, 0);
-  } else if (e.target === centerBtn) {
-    togglePauseOrRestart();
-  }
-});
+  btnUp.addEventListener('click', () => setDirection(0, -1));
+  btnDown.addEventListener('click', () => setDirection(0, 1));
+  btnLeft.addEventListener('click', () => setDirection(-1, 0));
+  btnRight.addEventListener('click', () => setDirection(1, 0));
+  btnCenter.addEventListener('click', togglePauseOrRestart);
 
   function togglePauseOrRestart() {
     if (gameOver) {
@@ -349,9 +332,6 @@ controls.addEventListener('click', (e) => {
   function drawGrid() {
     const w = COLS * cellSize, h = ROWS * cellSize;
     ctx.save();
-    ctx.fillStyle = 'magenta';
-ctx.fillRect(0, 0, 10, 10); // top-left marker
-console.log('Snake head:', snake[0]);
     ctx.strokeStyle = getCSS('--grid');
     ctx.lineWidth = 1;
     ctx.beginPath();
@@ -406,12 +386,10 @@ console.log('Snake head:', snake[0]);
 
     // body & tail
     for (let i = snake.length - 1; i >= 1; i--) {
-  const seg = snake[i];
-  let kind = 'body';
-  if (i === snake.length - 1) kind = 'tail';         // last segment
-  else if (i === snake.length - 2) kind = 'pre-tail'; // second-last
-  drawSegment(seg, kind);
-}
+      const seg = snake[i];
+      const isTail = (i === snake.length - 1);
+      drawSegment(seg, isTail ? 'tail' : 'body');
+    }
 
     // head last so it sits on top
     drawHead();
@@ -425,16 +403,13 @@ console.log('Snake head:', snake[0]);
   ctx.save();
 
   if (kind === 'tail') {
+    // Only draw the inner nub
     ctx.fillStyle = getCSS('--snake-body');
     ctx.beginPath();
-    ctx.arc(cx, cy, cellSize * 0.26, 0, Math.PI * 2);
-    ctx.fill();
-  } else if (kind === 'pre-tail') {
-    ctx.fillStyle = getCSS('--snake-body');
-    ctx.beginPath();
-    ctx.arc(cx, cy, cellSize * 0.34, 0, Math.PI * 2);
+    ctx.arc(cx, cy, cellSize * 0.22, 0, Math.PI * 2);
     ctx.fill();
   } else {
+    // Regular body segment
     ctx.fillStyle = getCSS('--snake-body');
     roundRect(ctx, x + 2, y + 2, cellSize - 4, cellSize - 4, BODY_ROUND);
     ctx.fill();
@@ -460,8 +435,8 @@ console.log('Snake head:', snake[0]);
     // mouth (directional wedge)
     const tNow = performance.now();
     const mouthOpen = (tNow - lastEatTime) < MOUTH_OPEN_MS;
-    const mouthWidth = mouthOpen ? cellSize*0.62 : cellSize*0.2;
-    const mouthDepth = mouthOpen ? cellSize*0.68 : cellSize*0.34;
+    const mouthWidth = mouthOpen ? cellSize*0.42 : cellSize*0.2;
+    const mouthDepth = mouthOpen ? cellSize*0.54 : cellSize*0.34;
     const cx = x + cellSize/2, cy = y + cellSize/2;
 
     ctx.fillStyle = getCSS('--board-bg');
@@ -547,40 +522,30 @@ console.log('Snake head:', snake[0]);
     selTheme.value = theme;
   }
 
- function init() {
-  initSettings();         // Apply theme and wall settings
-  resetGame(true);        // Reset game state and spawn first food
-  running = true;         // Ensure game loop runs
-  resizeForDPR();         // Adjust canvas for device pixel ratio
-  startLoop();            // Begin movement and drawing
-  updateHUD();            // Update score, level, etc.
+  function init() {
+    initSettings();
+    resetGame(true);      // fresh state and spawn first food
+    resizeForDPR();       // crisp canvas
+    startLoop();          // auto-start movement
+    updateHUD();
 
-  // Unlock audio on first interaction (for mobile autoplay policies)
-  const unlock = () => {
-    [sEat, sSpawn, sHit].forEach(a => {
-      a.muted = false;
-      a.play().then(() => a.pause()).catch(() => {});
-    });
-    window.removeEventListener('pointerdown', unlock);
-    window.removeEventListener('keydown', unlock);
-  };
+    window.addEventListener('resize', resizeForDPR);
 
-  window.addEventListener('pointerdown', unlock, { passive: true });
-  window.addEventListener('keydown', unlock, { passive: true });
-  window.addEventListener('resize', resizeForDPR);
-}
+    // Unlock audio on first interaction (mobile autoplay policies)
+    const unlock = () => {
+      [sEat, sSpawn, sHit].forEach(a => {
+        a.muted = false;
+        a.play().then(() => a.pause()).catch(() => {});
+      });
+      window.removeEventListener('pointerdown', unlock);
+      window.removeEventListener('keydown', unlock);
+    };
+    window.addEventListener('pointerdown', unlock, { passive: true });
+    window.addEventListener('keydown', unlock, { passive: true });
+  }
 
   init();
 })();
-
-
-
-
-
-
-
-
-
 
 
 
