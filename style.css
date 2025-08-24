@@ -100,14 +100,14 @@ body {
     "left center right"
     ". down .";
   gap: 12px;
-  width: clamp(200px, 40vw, 260px);
-  height: clamp(200px, 40vw, 260px);
+  width: clamp(180px, 40vw, 260px);
+  height: clamp(180px, 40vw, 260px);
   margin: auto;
 }
 
 .ctrl {
-  width: clamp(60px, 20vw, 84px);
-  height: clamp(60px, 20vw, 84px);
+  width: clamp(48px, 20vw, 84px);
+  height: clamp(48px, 20vw, 84px);
   font-size: clamp(20px, 5vw, 28px);
   border-radius: 16px;
   background: var(--card);
@@ -134,9 +134,10 @@ body {
   background: var(--accent);
   color: white;
   border: none;
-  width: clamp(50px, 18vw, 86px);
-  height: clamp(50px, 18vw, 86px);
+  width: clamp(48px, 18vw, 86px);
+  height: clamp(48px, 18vw, 86px);
 }
+
 
 
 /* Settings panel */
@@ -172,5 +173,6 @@ body {
   .ctrl { width: 74px; height: 74px; font-size: 24px; }
   .ctrl-center { width: 86px; height: 86px; }
 }
+
 
 
