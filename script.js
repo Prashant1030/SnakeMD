@@ -55,7 +55,7 @@
   let level = 1;
 
   let wallsOn = false;
-  let theme = document.documentElement.getAttribute('data-theme') || 'dark';
+  let theme = document.documentElement.getAttribute('data-theme') || 'light';
 
   let food = null;       // red
   let bonusFood = null;  // green
@@ -78,7 +78,7 @@
     scoreEl.textContent = String(score);
     highEl.textContent = String(high);
     levelEl.textContent = String(level);
-    btnCenter.textContent = gameOver ? '⟲' : (running ? '⏸' : '▶');
+    btnCenter.textContent = gameOver ? 'âŸ²' : (running ? 'â¸' : 'â–¶');
   }
 
   const speedForLevel = lv => LEVEL_SPEEDS_MS[Math.min(LEVEL_SPEEDS_MS.length - 1, lv - 1)];
@@ -225,7 +225,7 @@
 
   // ----- Game step -----
   function step() {
-    // queue → active direction
+    // queue â†’ active direction
     dir = nextDir;
 
     // compute next head position
@@ -271,7 +271,7 @@
       bonusFood = null;
       sEat.currentTime = 0; sEat.play().catch(() => {});
     } else {
-      // no eat → drop tail
+      // no eat â†’ drop tail
       snake.pop();
     }
 
