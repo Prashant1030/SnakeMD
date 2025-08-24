@@ -1,6 +1,6 @@
 (() => {
   // ----- Config -----
-  const COLS = 22, ROWS = 30;
+  const COLS = 30, ROWS = 30;
 
   // Levels: lower ms = faster; level increases every 50 points
   const LEVEL_SPEEDS_MS = [150, 130, 112, 96, 84, 74, 66, 60, 54];
@@ -19,16 +19,7 @@
 
   // ----- Elements -----
   const canvas = document.getElementById('board');
-const ctx = canvas.getContext('2d');
-
-const COLS = 22, ROWS = 30;
-const screenW = Math.min(window.innerWidth, 560); // cap max width
-const cellSize = Math.floor(screenW / COLS);
-
-canvas.style.width = `${cellSize * COLS}px`;
-canvas.style.height = `${cellSize * ROWS}px`;
-canvas.width = cellSize * COLS;
-canvas.height = cellSize * ROWS;
+  const ctx = canvas.getContext('2d');
 
   const scoreEl = document.getElementById('score');
   const highEl = document.getElementById('high');
@@ -553,8 +544,3 @@ canvas.height = cellSize * ROWS;
 
   init();
 })();
-
-
-
-
-
