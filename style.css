@@ -5,7 +5,7 @@
   --card: #16181d;
   --accent: #3b82f6;
 
-  --board-bg: #08090d;
+  --board-bg: #0b0c10;
   --grid: #1f242d;
 
   --snake-head: #6ee7b7;
@@ -40,6 +40,10 @@ body {
   font-family: system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji";
   color: var(--fg);
   background: var(--bg);
+  body {
+  background-color: #1a1f2b; /* or any color you want outside the playzone */
+}
+
 }
 
 .topbar {
@@ -81,33 +85,14 @@ body {
 }
 
 /* Controls */
-.circle-controls {
-  display: grid;
-  grid-template-areas:
-    ". up ."
-    "left center right"
-    ". down .";
-  gap: 10px;
-  width: 200px;
-  margin: 0 auto;
-}
-
-.circle-controls button {
-  font-size: 1.5rem;
-  padding: 10px;
+.controls { margin-top: 16px; display: grid; place-items: center; }
+.dpad {
+  position: relative;
+  width: 260px;
+  height: 260px;
   border-radius: 50%;
-  background: var(--card);
-  color: var(--fg);
-  border: none;
-  cursor: pointer;
+  background: radial-gradient(120px 120px at center, rgba(255,255,255,0.06), transparent);
 }
-
-[data-dir="up"]    { grid-area: up; }
-[data-dir="down"]  { grid-area: down; }
-[data-dir="left"]  { grid-area: left; }
-[data-dir="right"] { grid-area: right; }
-#center-btn        { grid-area: center; background: var(--accent); color: white; }
-
 .ctrl {
   position: absolute;
   width: 84px; height: 84px;
@@ -168,8 +153,4 @@ body {
   .ctrl { width: 74px; height: 74px; font-size: 24px; }
   .ctrl-center { width: 86px; height: 86px; }
 }
-
-
-
-
 
